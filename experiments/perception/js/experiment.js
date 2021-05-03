@@ -25,7 +25,7 @@ function make_slides(f) {
       // read in the value of the selected radio button
       this.radio = $("input[name='number']:checked").val();
       // check whether the participant selected a reasonable value (i.e, 5, 6, or 7)
-      if (this.radio == "5" || this.radio == "6" || this.radio == "7") {
+      if (this.radio == "tense") {
         // log response
         this.log_responses();
         // continue to next slide
@@ -95,6 +95,7 @@ function make_slides(f) {
   slides.trial = slide({
     name: "trial",
 
+    // A placeholder stimulus is defined (only one stimulus)
     // start: function() {
     //   var stim = {
     //     "TGrep": "37224:9",
@@ -102,10 +103,8 @@ function make_slides(f) {
     //     "EntireSentence": "but in some ways i think we are expected  to do it all.",
     //     "ButNotAllSentence": "but in <strong>some, but not all</strong> ways i think we are expected  to do it all."
     //   }
-    // The 7 lines above from "start:..." to the end of var stim = {...}" define a placeholder stimulus that you will have to delete when
-    // loading in the individual stimulus data.
 
-    // To rotate through stimulus list, comment out the above 7 lines and  uncomment the following 2:
+    // Rotate through stimulus list
     present: exp.stimuli,
     present_handle : function(stim) {
 
@@ -117,26 +116,27 @@ function make_slides(f) {
       // store stimulus data
       this.stim = stim;
 
-      // extract original and sentence with "but not all"
+      // extract from "stimuli.js" original sentence and "but not all" sentence -- IRRELEVANT FOR ME
       var original_sentence = stim.EntireSentence;
       var target_sentence = stim.ButNotAllSentence;
 
-      //handle display of context
-      // if (exp.condition == "context") {
-      //   // extract context data
-      //   var contexthtml = stim.Context;
-      //   // reformat the speaker information for context
-      //   contexthtml = contexthtml.replace(/Speaker A:/g, "<b>Speaker #1:</b>");
-      //   contexthtml = contexthtml.replace(/Speaker B:/g, "<b>Speaker #2:</b>");
-      //   $(".case").html(contexthtml);
-      // } else {
-      //   var contexthtml = "";
-      //   $(".case").html(contexthtml);
-      // }
-
+      //handle display of context -- IRRELEVANT FOR ME
+/*
+      if (exp.condition == "context") {
+        // extract context data
+        var contexthtml = stim.Context;
+        // reformat the speaker information for context
+        contexthtml = contexthtml.replace(/Speaker A:/g, "<b>Speaker #1:</b>");
+        contexthtml = contexthtml.replace(/Speaker B:/g, "<b>Speaker #2:</b>");
+        $(".case").html(contexthtml);
+      } else {
+        var contexthtml = "";
+        $(".case").html(contexthtml);
+      }
+*/
       // replace the placeholder in the HTML document with the relevant sentences for this trial
-      $("#trial-originalSen").html(original_sentence);
-      $("#trial-targetSen").html(target_sentence);
+      $("#trial-originalSen").html(original_sentence); // IRRELEVANT FOR ME
+      $("#trial-targetSen").html(target_sentence); // IRRELEVANT FOR ME
       $(".err").hide();
 
     },
@@ -158,8 +158,8 @@ function make_slides(f) {
     log_responses: function() {
       exp.data_trials.push({
         "id": this.stim.TGrep,
-        // "sentence": this.stim.ButNotAllSentence,
-        // "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
+        "sentence": this.stim.ButNotAllSentence,
+        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
         "response": this.radio,
         "strangeSentence": this.strange
       });
@@ -184,7 +184,7 @@ function make_slides(f) {
     }
   });
 
-  //
+  // fianl slide
   slides.thanks = slide({
     name: "thanks",
     start: function() {
@@ -210,7 +210,7 @@ function init() {
   exp.catch_trials = [];
   var stimuli = all_stims;
 
-  exp.stimuli = stimuli; //call _.shuffle(stimuli) to randomize the order;
+  exp.stimuli = _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order;
 
   console.log(exp.stimuli) //I added this during tutorial
   exp.n_trials = exp.stimuli.length;

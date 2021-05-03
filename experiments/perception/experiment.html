@@ -36,17 +36,25 @@
     <!-- initial slide -->
     <div class="slide" id="i0">
       <p class="left">
-        You will read some sentences. These are sentences from transcriptions of real conversations real people had over the phone. <strong>Your task is to answer a question about the red sentence to the best of your ability.</strong><br>
+        You will listen to some Korean words. <strong>Your task is to identify each word by choosing one of the spellings given to you.</strong> When you are not sure, please choose what appears to be the closest option to you.<br>
         <br>
-        The experiment will take approximately 10 minutes. Let's start with two examples!
+        The experiment will take approximately ///10 minutes. Let's start with ///two examples!
       </p><button id="start_button" type="button">Start experiment</button>
       <p class="left legal">
         <strong><br>
-        <br>
-        <br>
         LEGAL INFORMATION</strong>:<br>
         <br>
-        IF APPLICABLE, MAKE SURE TO INCLUDE YOUR IRB CONSENT FORM HERE.
+        /// translation <br>
+        /// inside the frame <br>
+        We invite you to participate in a research study on language production and comprehension. Your experimenter will ask you to do a linguistic task such as reading sentences or words, naming pictures or describing scenes, making up sentences of your own, or participating in a simple language game. <br>
+        There are no risks or benefits of any kind involved in this study. <br>
+        You will be paid for your participation at the posted rate. <br>
+        If you have read this form and have decided to participate in this experiment, please understand your participation is voluntary and you have the right to withdraw your consent or discontinue participation at any time without penalty or loss of benefits to which you are otherwise entitled. You have the right to refuse to do particular tasks. Your individual privacy will be maintained in all published and written dataresulting from the study. You may print this form for your records.<br>
+        <br>
+        CONTACT INFORMATION: <br>
+        If you have any questions, concerns or complaints about this research study, its procedures, risks and benefits, you should contact the Protocol Director Meghan Sumner at (650)-725-9336. <br>
+        If you are not satisfied with how this study is being conducted, or if you have any concerns, complaints, or general questions about the research or your rights as a participant, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at (650)-723-2480 or toll free at 1-866-680-2906. You can also write to the Stanford IRB, Stanford University, 3000 El Camino Real, Five Palo Alto Square, 4th Floor, Palo Alto, CA 94306 USA.<br>
+        If you agree to participate, please proceed to the study tasks.
       </p>
     </div>
 
@@ -55,67 +63,41 @@
       <h3>
         Example 1
       </h3>
-      <p class="originalSen">
+      <!-- <p class="originalSen">
         I had some of the banana yogurt.
       </p>
       <p class="targetSen">
         I had <b>some, but not all</b> of the banana yogurt
-      </p>
+      </p> -->
       <div class="instruction">
-        <i>How similar is the statement in blue (with 'but not all') to the statement in red (without 'but not all')?</i>
+        <i>Which word did you hear?</i>
       </div>
-      <table class="likertscale">
+      <table class="stops">
         <tr>
           <td>
-            very different meaning
           </td>
           <td>
-            <input type="radio" name="number" value="1">
+            <input type="radio" name="number" value="lenis">
           </td>
           <td>
-            <input type="radio" name="number" value="2">
+            <input type="radio" name="number" value="tense">
           </td>
           <td>
-            <input type="radio" name="number" value="3">
+            <input type="radio" name="number" value="asp">
           </td>
           <td>
-            <input type="radio" name="number" value="4">
-          </td>
-          <td>
-            <input type="radio" name="number" value="5">
-          </td>
-          <td>
-            <input type="radio" name="number" value="6">
-          </td>
-          <td>
-            <input type="radio" name="number" value="7">
-          </td>
-          <td>
-            same meaning
           </td>
         </tr>
         <tr>
           <td></td>
           <td>
-            1
+            불
           </td>
           <td>
-            2
+            뿔
           </td>
           <td>
-            3
-          </td>
-          <td>
-            4
-          </td>
-          <td>
-            5
-          </td>
-          <td>
-            6
-          </td>
-          <td>
-            7
+            풀
           </td>
           <td></td>
         </tr>
@@ -124,9 +106,10 @@
       <div class="center">
         <button class="continueButton" onclick="_s.button()">Continue</button>
       </div>
-      <div class="err">
+      <div class="err"> <!-- Hidden unless participant clicks Continue without choosing one. -->
         <p>
-          In your rating, consider whether the sentence 'some, but not all' expresses the same thing as the red sentence. In this example the two sentences are very similar.
+          You need to choose a word based on what you have just heard. <br>
+          In this example, you have heard "뿔".
         </p>
       </div>
     </div>
