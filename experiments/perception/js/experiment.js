@@ -10,6 +10,43 @@ function make_slides(f) {
     }
   });
 
+  // set up audio check slide
+  // TODO : record wrong answers
+  slides.check = slide({ // instead of audio_check
+    name : "check", // instead of audio_check
+    start: function() {
+      $('.err').hide();
+      // $('.question').hide();
+      document.getElementById("audio_check").play();
+        // setTimeout(function(){
+          // $('.question').show();
+        // },1500);
+    },
+    button : function() {
+      this.radio = $("input[name='number']:checked").val();
+      if (this.radio == "y") {
+        this.log_responses();
+        exp.go();
+      }
+      else{
+        $('.err').show();
+      }
+    },
+
+    log_responses : function() {
+      exp.data_trials.push({
+          "slide_number_in_experiment": exp.phase,
+          "id": "check", // instead of "audio_check"
+          "response": this.radio,
+          "vot": "",
+          "f0": "",
+          // "image" : "",
+          // "audio" : "",
+      });
+    }
+  });
+
+
   // set up the first example slide
   slides.example1 = slide({
     name: "example1",
@@ -23,7 +60,7 @@ function make_slides(f) {
     // this is executed when the participant clicks the "Continue button"
     button: function() {
       // read in the value of the selected radio button
-      this.radio = $("input[name='number']:checked").val();
+      this.radio = $("input[name='word']:checked").val();
       // check whether the participant selected a reasonable value (i.e, 5, 6, or 7)
       if (this.radio == "tense") {
         // log response
@@ -44,11 +81,14 @@ function make_slides(f) {
         "slide_number_in_experiment": exp.phase,
         "id": "example1",
         "response": this.radio,
-        "strangeSentence": "",
-        "sentence": "",
+        "vot": "",
+        "f0": "",
+        // "strangeSentence": "",
+        // "sentence": "",
       });
     },
   });
+  console.log(exp.data_trials)
 
   // set up slide for second example trial
   slides.example2 = slide({
@@ -61,8 +101,8 @@ function make_slides(f) {
 
     // handle button click
     button: function() {
-      this.radio = $("input[name='number']:checked").val();
-      if (this.radio == "1" || this.radio == "2" || this.radio == "3") {
+      this.radio = $("input[name='word']:checked").val();
+      if (this.radio == "asp") {
         this.log_responses();
         exp.go();
       } else {
@@ -76,11 +116,49 @@ function make_slides(f) {
         "slide_number_in_experiment": exp.phase,
         "id": "example2",
         "response": this.radio,
-        "strangeSentence": "",
-        "sentence": "",
+        "vot": "",
+        "f0": "",
+        // "strangeSentence": "",
+        // "sentence": "",
       });
     }
   });
+  console.log(exp.data_trials)
+
+  // set up slide for third example trial
+  slides.example3 = slide({
+    name: "example3",
+
+    start: function() {
+      // hide error message
+      $(".err").hide();
+    },
+
+    // handle button click
+    button: function() {
+      this.radio = $("input[name='word']:checked").val();
+      if (this.radio == "lenis") {
+        this.log_responses();
+        exp.go();
+      } else {
+        $('.err').show();
+        this.log_responses();
+      }
+    },
+
+    log_responses: function() {
+      exp.data_trials.push({
+        "slide_number_in_experiment": exp.phase,
+        "id": "example3",
+        "response": this.radio,
+        "vot": "",
+        "f0": "",
+        // "strangeSentence": "",
+        // "sentence": "",
+      });
+    }
+  });
+  console.log(exp.data_trials)
 
   // set up slide with instructions for main experiment
   slides.startExp = slide({
@@ -217,6 +295,7 @@ function init() {
 
   // exp.condition = _.sample(["context", "no-context"]); //can randomize between subjects conditions here
 
+  // TODO : record speaker or earphone; or ask about it in questionnaire
   exp.system = {
     Browser: BrowserDetect.browser,
     OS: BrowserDetect.OS,
@@ -229,8 +308,10 @@ function init() {
   //blocks of the experiment:
   exp.structure = [
     "i0",
+    "check", // instead of "audio_check"
     "example1",
     "example2",
+    "example3",
     "startExp",
     "trial",
     "subj_info",
