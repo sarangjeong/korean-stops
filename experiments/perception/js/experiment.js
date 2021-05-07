@@ -286,7 +286,7 @@ function init() {
 
   exp.trials = [];
   exp.catch_trials = [];
-  var stimuli = all_stims;
+  var stimuli = trial_stims;
 
   exp.stimuli = _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order;
 
