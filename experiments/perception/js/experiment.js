@@ -188,15 +188,15 @@ function make_slides(f) {
 
       // unselect all radio buttons at the beginning of each trial
       // (by default, the selection of the radio persists across trials)
-      $("input[name='number']:checked").prop("checked", false);
+      $("input[name='word']:checked").prop("checked", false);
       // $("#check-strange").prop("checked", false);
 
       // store stimulus data
       this.stim = stim;
 
       // extract from "stimuli.js" original sentence and "but not all" sentence -- IRRELEVANT FOR ME
-      var original_sentence = stim.EntireSentence;
-      var target_sentence = stim.ButNotAllSentence;
+      // var original_sentence = stim.EntireSentence;
+      // var target_sentence = stim.ButNotAllSentence;
 
       //handle display of context -- IRRELEVANT FOR ME
 /*
@@ -213,16 +213,16 @@ function make_slides(f) {
       }
 */
       // replace the placeholder in the HTML document with the relevant sentences for this trial
-      $("#trial-originalSen").html(original_sentence); // IRRELEVANT FOR ME
-      $("#trial-targetSen").html(target_sentence); // IRRELEVANT FOR ME
+      // $("#trial-originalSen").html(original_sentence); // IRRELEVANT FOR ME
+      // $("#trial-targetSen").html(target_sentence); // IRRELEVANT FOR ME
       $(".err").hide();
 
     },
 
     // handle click on "Continue" button
     button: function() {
-      this.radio = $("input[name='number']:checked").val();
-      this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
+      this.radio = $("input[name='word']:checked").val();
+      // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
       if (this.radio) {
         this.log_responses();
         // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
@@ -235,11 +235,16 @@ function make_slides(f) {
     // save response
     log_responses: function() {
       exp.data_trials.push({
-        "id": this.stim.TGrep,
-        "sentence": this.stim.ButNotAllSentence,
         "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
+        "id": this.stim.audio,
         "response": this.radio,
-        "strangeSentence": this.strange
+        "word": this.stim.word,
+        "poa": this.stim.poa,
+        "vot": this.stim.vot,
+        "f0": this.stim.f0
+        // "id": this.stim.TGrep,
+        // "sentence": this.stim.ButNotAllSentence,
+        // "strangeSentence": this.strange
       });
     },
   });

@@ -255,79 +255,55 @@
 
     <!-- trial slide -->
     <div class="slide" id="trial">
+      <audio id="stim">
+        <source id="wav_src" src="" type="audio/wav">Your browser does not support the audio element.</audio>
 
       <!-- placeholders for contexts -->
       <!-- <p class="case" style="text-align: left;"></p> -->
 
       <!-- placeholders for stimuli -->
-      <p class="originalSen" id="trial-originalSen">
+      <!-- <p class="originalSen" id="trial-originalSen">
         {{original sentence}}
       </p>
       <p class="targetSen" id="trial-targetSen">
         {{target sentence}}
-      </p>
+      </p> -->
       <div class="instruction">
-        <i>How similar is the statement in blue (with 'but not all') to the statement in red (without 'but not all')?</i>
+        <i>Which word did you hear?</i>
       </div>
-      <table class="likertscale">
+      <table class="stops">
         <tr>
           <td>
-            very different meaning
           </td>
           <td>
-            <input type="radio" name="number" value="1">
+            <input type="radio" name="word" value="lenis">
           </td>
           <td>
-            <input type="radio" name="number" value="2">
+            <input type="radio" name="word" value="tense">
           </td>
           <td>
-            <input type="radio" name="number" value="3">
+            <input type="radio" name="word" value="asp">
           </td>
           <td>
-            <input type="radio" name="number" value="4">
-          </td>
-          <td>
-            <input type="radio" name="number" value="5">
-          </td>
-          <td>
-            <input type="radio" name="number" value="6">
-          </td>
-          <td>
-            <input type="radio" name="number" value="7">
-          </td>
-          <td>
-            same meaning
           </td>
         </tr>
         <tr>
           <td></td>
           <td>
-            1
+            방
           </td>
           <td>
-            2
+            빵
           </td>
           <td>
-            3
-          </td>
-          <td>
-            4
-          </td>
-          <td>
-            5
-          </td>
-          <td>
-            6
-          </td>
-          <td>
-            7
+            팡
           </td>
           <td></td>
         </tr>
       </table><br>
       <br>
-      The blue sentence sounds strange: <input type="checkbox" id="check-strange"><br>
-      <br>
+      <!-- The blue sentence sounds strange: <input type="checkbox" id="check-strange"><br>
+      <br> -->
       <div class="center">
         <button class="continueButton" onclick="_s.button()">Continue</button>
       </div>
