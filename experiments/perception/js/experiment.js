@@ -188,12 +188,83 @@ function make_slides(f) {
 
       // unselect all radio buttons at the beginning of each trial
       // (by default, the selection of the radio persists across trials)
-      $("input[name='word']:checked").prop("checked", false);
+      // $("input[name='word']:checked").prop("checked", false);
       // $("#check-strange").prop("checked", false);
+
+      // unselect all radio buttons (Leyla)
+      $('#lenis').empty()
+      $('#tense').empty()
+      $('#asp').empty()
 
       // store stimulus data
       this.stim = stim;
 
+      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
+
+      // for option 1 (lenis)
+      $('#lenis').append(
+            $('<input>').prop({
+                type: 'radio',
+                id: this.stim.poa + "lenis",
+                value: "lenis",
+                name: "word"
+            })
+        ).append(
+            $('<label>').prop({
+                for: this.stim.poa + "lenis"
+            }).html(poa_laryngeal[this.stim.poa][0]))
+
+      // for option 2 (tense)
+      $('#tense').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "tense",
+            value: "tense",
+            name: "word"
+        })
+      ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "tense"
+          }).html(poa_laryngeal[this.stim.poa][1]))
+
+      // for option 3 (aspirated)
+      $('#asp').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "asp",
+            value: "asp",
+            name: "word"
+        })
+    ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "asp"
+          }).html(poa_laryngeal[this.stim.poa][2]))
+
+      // for word2
+/*      $('#word2').append(
+            $('<input>').prop({
+                type: 'radio',
+                id: stim.word2,
+                value: stim.word2,
+                name: "words"
+            })
+        ).append(
+            $('<label>').prop({
+                for: stim.word2
+            }).html(stim.word2))
+      // for word3
+      $('#word3').append(
+            $('<input>').prop({
+                type: 'radio',
+                id: stim.word3,
+                value: stim.word3,
+                name: "words"
+            })
+        ).append(
+            $('<label>').prop({
+                for: stim.word3
+            }).html(stim.word3))
+*/
       // extract from "stimuli.js" original sentence and "but not all" sentence -- IRRELEVANT FOR ME
       // var original_sentence = stim.EntireSentence;
       // var target_sentence = stim.ButNotAllSentence;
@@ -318,7 +389,11 @@ function init() {
     "example2",
     "example3",
     "startExp",
-    "trial",
+    "trial", // 방 빵 팡
+    // "break",
+    // "trial", // 간 깐 칸
+    // "break",
+    // "trial", // 담 땀 탐
     "subj_info",
     "thanks"
   ];
