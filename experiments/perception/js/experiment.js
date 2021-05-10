@@ -240,31 +240,6 @@ function make_slides(f) {
             for: this.stim.poa + "asp"
           }).html(poa_laryngeal[this.stim.poa][2]))
 
-      // for word2
-/*      $('#word2').append(
-            $('<input>').prop({
-                type: 'radio',
-                id: stim.word2,
-                value: stim.word2,
-                name: "words"
-            })
-        ).append(
-            $('<label>').prop({
-                for: stim.word2
-            }).html(stim.word2))
-      // for word3
-      $('#word3').append(
-            $('<input>').prop({
-                type: 'radio',
-                id: stim.word3,
-                value: stim.word3,
-                name: "words"
-            })
-        ).append(
-            $('<label>').prop({
-                for: stim.word3
-            }).html(stim.word3))
-*/
       // extract from "stimuli.js" original sentence and "but not all" sentence -- IRRELEVANT FOR ME
       // var original_sentence = stim.EntireSentence;
       // var target_sentence = stim.ButNotAllSentence;
@@ -317,6 +292,17 @@ function make_slides(f) {
         // "sentence": this.stim.ButNotAllSentence,
         // "strangeSentence": this.strange
       });
+    },
+  });
+
+  // set up slide for break
+  // TODO : tell them how many blocks are left
+  slides.break = slide({
+    name: "break",
+    start: function() {
+    },
+    button: function() {
+      exp.go(); //use exp.go() if and only if there is no "present" data.
     },
   });
 
@@ -390,7 +376,7 @@ function init() {
     "example3",
     "startExp",
     "trial", // 방 빵 팡
-    // "break",
+    "break",
     // "trial", // 간 깐 칸
     // "break",
     // "trial", // 담 땀 탐
