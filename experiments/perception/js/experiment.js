@@ -169,6 +169,7 @@ function make_slides(f) {
     },
   });
 
+  // main experiment, block 1
   slides.trial1 = slide({
     name: "trial1",
 
@@ -272,6 +273,7 @@ function make_slides(f) {
     },
   });
 
+  // main experiment, block 2
   slides.trial2 = slide({
     name: "trial2",
 
@@ -375,6 +377,7 @@ function make_slides(f) {
     },
   });
 
+  // main experiment, block 3
   slides.trial3 = slide({
     name: "trial3",
 
