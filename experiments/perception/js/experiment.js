@@ -172,7 +172,7 @@ function make_slides(f) {
   slides.trial1 = slide({
     name: "trial1",
 
-    present: exp.stimuli[exp.trial_poa[0]],
+    present: _.shuffle(exp.stimuli[exp.trial_poa[0]]),
     present_handle : function(stim) {
 
       // unselect all radio buttons (Leyla)
@@ -219,10 +219,16 @@ function make_slides(f) {
             value: "asp",
             name: "word"
         })
-    ).append(
+       ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
           }).html(poa_laryngeal[this.stim.poa][2]))
+
+      var aud = document.getElementById("stim1");
+      aud.src = "audio/"+stim.audio;
+      console.log("audio source:",aud.src)
+      aud.load();
+      aud.play();
 
       $(".err").hide();
 
@@ -255,10 +261,21 @@ function make_slides(f) {
     },
   });
 
+  // set up slide for break
+  // TODO : tell them how many blocks are left
+  slides.break1 = slide({
+    name: "break1",
+    start: function() {
+    },
+    button: function() {
+      exp.go(); //use exp.go() if and only if there is no "present" data.
+    },
+  });
+
   slides.trial2 = slide({
     name: "trial2",
 
-    present: exp.stimuli[exp.trial_poa[1]],
+    present: _.shuffle(exp.stimuli[exp.trial_poa[1]]),
     present_handle : function(stim) {
 
       // unselect all radio buttons (Leyla)
@@ -305,10 +322,16 @@ function make_slides(f) {
             value: "asp",
             name: "word"
         })
-    ).append(
+      ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
           }).html(poa_laryngeal[this.stim.poa][2]))
+          
+      var aud = document.getElementById("stim2");
+      aud.src = "audio/"+stim.audio;
+      console.log("audio source:",aud.src)
+      aud.load();
+      aud.play();
 
       $(".err").hide();
 
@@ -341,10 +364,21 @@ function make_slides(f) {
     },
   });
 
+  // set up slide for break
+  // TODO : tell them how many blocks are left
+  slides.break2 = slide({
+    name: "break2",
+    start: function() {
+    },
+    button: function() {
+      exp.go(); //use exp.go() if and only if there is no "present" data.
+    },
+  });
+
   slides.trial3 = slide({
     name: "trial3",
 
-    present: exp.stimuli[exp.trial_poa[2]],
+    present: _.shuffle(exp.stimuli[exp.trial_poa[2]]),
     present_handle : function(stim) {
 
       // unselect all radio buttons (Leyla)
@@ -391,10 +425,16 @@ function make_slides(f) {
             value: "asp",
             name: "word"
         })
-    ).append(
+      ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
           }).html(poa_laryngeal[this.stim.poa][2]))
+
+      var aud = document.getElementById("stim3");
+      aud.src = "audio/"+stim.audio;
+      console.log("audio source:",aud.src)
+      aud.load();
+      aud.play();
 
       $(".err").hide();
 
@@ -426,16 +466,6 @@ function make_slides(f) {
       });
     },
   });
-  // set up slide for break
-  // TODO : tell them how many blocks are left
-  // slides.break = slide({
-  //   name: "break",
-  //   start: function() {
-  //   },
-  //   button: function() {
-  //     exp.go(); //use exp.go() if and only if there is no "present" data.
-  //   },
-  // });
 
   // slide to collect subject information
   slides.subj_info = slide({
@@ -483,7 +513,8 @@ function init() {
 
   exp.stimuli = stimuli // _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order;
   
-  exp.trial_poa = _.shuffle(Object.keys(stimuli)); // shuffle poas of trial
+  // determine which poa (방빵팡/담땀탐/간깐칸) to put in each block
+  exp.trial_poa = ['lab', 'lab', 'lab'] // _.shuffle(Object.keys(stimuli)); // shuffle poas of trial
 
   console.log(exp.stimuli) //I added this during tutorial
   exp.n_trials = exp.stimuli.length;
@@ -509,11 +540,10 @@ function init() {
     "example3",
     "startExp",
     "trial1", // 방 빵 팡
-    // "break",
+    "break1",
     "trial2", // 간 깐 칸
-    // "break",
+    "break2",
     "trial3", // 담 땀 탐
-    // "break",
     "subj_info",
     "thanks"
   ];
