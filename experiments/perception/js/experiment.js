@@ -1,4 +1,3 @@
-// set up experiment logic for each slide
 function make_slides(f) {
   var slides = {};
 
@@ -170,31 +169,16 @@ function make_slides(f) {
     },
   });
 
-  slides.trial = slide({
-    name: "trial",
+  slides.trial1 = slide({
+    name: "trial1",
 
-    // A placeholder stimulus is defined (only one stimulus)
-    // start: function() {
-    //   var stim = {
-    //     "TGrep": "37224:9",
-    //     "Context": "Speaker A:  and, and i, you know, i still provide most of the things that  go on around the house.<p>Speaker B: right.<p>Speaker A: so, uh, yeah and for a while i was going to school too, and tha-, it was tough.<p>Speaker B: yeah,  i uh, i think that while it 's a good change for i think women to be able  to fulfill their potential in whatever they feel, you know, their expertise may be .<p>Speaker A: uh-huh.<p>Speaker B: uh-huh.<p>Speaker A: uh, i think sometimes other things suffer and tha-, i think it 's hard to find a balance there.<p>Speaker B: ",
-    //     "EntireSentence": "but in some ways i think we are expected  to do it all.",
-    //     "ButNotAllSentence": "but in <strong>some, but not all</strong> ways i think we are expected  to do it all."
-    //   }
-
-    // Rotate through stimulus list
-    present: exp.stimuli,
+    present: exp.stimuli[exp.trial_poa[0]],
     present_handle : function(stim) {
 
-      // unselect all radio buttons at the beginning of each trial
-      // (by default, the selection of the radio persists across trials)
-      // $("input[name='word']:checked").prop("checked", false);
-      // $("#check-strange").prop("checked", false);
-
       // unselect all radio buttons (Leyla)
-      $('#lenis').empty()
-      $('#tense').empty()
-      $('#asp').empty()
+      $('#lenis1').empty()
+      $('#tense1').empty()
+      $('#asp1').empty()
 
       // store stimulus data
       this.stim = stim;
@@ -202,7 +186,7 @@ function make_slides(f) {
       // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
 
       // for option 1 (lenis)
-      $('#lenis').append(
+      $('#lenis1').append(
             $('<input>').prop({
                 type: 'radio',
                 id: this.stim.poa + "lenis",
@@ -215,7 +199,7 @@ function make_slides(f) {
             }).html(poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
-      $('#tense').append(
+      $('#tense1').append(
         $('<input>').prop({
             type: 'radio',
             id: this.stim.poa + "tense",
@@ -228,7 +212,7 @@ function make_slides(f) {
           }).html(poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
-      $('#asp').append(
+      $('#asp1').append(
         $('<input>').prop({
             type: 'radio',
             id: this.stim.poa + "asp",
@@ -240,27 +224,6 @@ function make_slides(f) {
             for: this.stim.poa + "asp"
           }).html(poa_laryngeal[this.stim.poa][2]))
 
-      // extract from "stimuli.js" original sentence and "but not all" sentence -- IRRELEVANT FOR ME
-      // var original_sentence = stim.EntireSentence;
-      // var target_sentence = stim.ButNotAllSentence;
-
-      //handle display of context -- IRRELEVANT FOR ME
-/*
-      if (exp.condition == "context") {
-        // extract context data
-        var contexthtml = stim.Context;
-        // reformat the speaker information for context
-        contexthtml = contexthtml.replace(/Speaker A:/g, "<b>Speaker #1:</b>");
-        contexthtml = contexthtml.replace(/Speaker B:/g, "<b>Speaker #2:</b>");
-        $(".case").html(contexthtml);
-      } else {
-        var contexthtml = "";
-        $(".case").html(contexthtml);
-      }
-*/
-      // replace the placeholder in the HTML document with the relevant sentences for this trial
-      // $("#trial-originalSen").html(original_sentence); // IRRELEVANT FOR ME
-      // $("#trial-targetSen").html(target_sentence); // IRRELEVANT FOR ME
       $(".err").hide();
 
     },
@@ -288,23 +251,191 @@ function make_slides(f) {
         "poa": this.stim.poa,
         "vot": this.stim.vot,
         "f0": this.stim.f0
-        // "id": this.stim.TGrep,
-        // "sentence": this.stim.ButNotAllSentence,
-        // "strangeSentence": this.strange
       });
     },
   });
 
-  // set up slide for break
-  // TODO : tell them how many blocks are left
-  slides.break = slide({
-    name: "break",
-    start: function() {
+  slides.trial2 = slide({
+    name: "trial2",
+
+    present: exp.stimuli[exp.trial_poa[1]],
+    present_handle : function(stim) {
+
+      // unselect all radio buttons (Leyla)
+      $('#lenis2').empty()
+      $('#tense2').empty()
+      $('#asp2').empty()
+
+      // store stimulus data
+      this.stim = stim;
+
+      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
+
+      // for option 1 (lenis)
+      $('#lenis2').append(
+            $('<input>').prop({
+                type: 'radio',
+                id: this.stim.poa + "lenis",
+                value: "lenis",
+                name: "word"
+            })
+        ).append(
+            $('<label>').prop({
+                for: this.stim.poa + "lenis"
+            }).html(poa_laryngeal[this.stim.poa][0]))
+
+      // for option 2 (tense)
+      $('#tense2').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "tense",
+            value: "tense",
+            name: "word"
+        })
+      ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "tense"
+          }).html(poa_laryngeal[this.stim.poa][1]))
+
+      // for option 3 (aspirated)
+      $('#asp2').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "asp",
+            value: "asp",
+            name: "word"
+        })
+    ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "asp"
+          }).html(poa_laryngeal[this.stim.poa][2]))
+
+      $(".err").hide();
+
     },
+
+    // handle click on "Continue" button
     button: function() {
-      exp.go(); //use exp.go() if and only if there is no "present" data.
+      this.radio = $("input[name='word']:checked").val();
+      // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
+      if (this.radio) {
+        this.log_responses();
+        // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
+        _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
+      } else {
+        $('.err').show();
+      }
+    },
+
+    // save response
+    log_responses: function() {
+      exp.data_trials.push({
+        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
+        "id": this.stim.audio,
+        "response": this.radio,
+        "word": this.stim.word,
+        "poa": this.stim.poa,
+        "vot": this.stim.vot,
+        "f0": this.stim.f0
+      });
     },
   });
+
+  slides.trial3 = slide({
+    name: "trial3",
+
+    present: exp.stimuli[exp.trial_poa[2]],
+    present_handle : function(stim) {
+
+      // unselect all radio buttons (Leyla)
+      $('#lenis3').empty()
+      $('#tense3').empty()
+      $('#asp3').empty()
+
+      // store stimulus data
+      this.stim = stim;
+
+      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
+
+      // for option 1 (lenis)
+      $('#lenis3').append(
+            $('<input>').prop({
+                type: 'radio',
+                id: this.stim.poa + "lenis",
+                value: "lenis",
+                name: "word"
+            })
+        ).append(
+            $('<label>').prop({
+                for: this.stim.poa + "lenis"
+            }).html(poa_laryngeal[this.stim.poa][0]))
+
+      // for option 2 (tense)
+      $('#tense3').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "tense",
+            value: "tense",
+            name: "word"
+        })
+      ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "tense"
+          }).html(poa_laryngeal[this.stim.poa][1]))
+
+      // for option 3 (aspirated)
+      $('#asp3').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "asp",
+            value: "asp",
+            name: "word"
+        })
+    ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "asp"
+          }).html(poa_laryngeal[this.stim.poa][2]))
+
+      $(".err").hide();
+
+    },
+
+    // handle click on "Continue" button
+    button: function() {
+      this.radio = $("input[name='word']:checked").val();
+      // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
+      if (this.radio) {
+        this.log_responses();
+        // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
+        _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
+      } else {
+        $('.err').show();
+      }
+    },
+
+    // save response
+    log_responses: function() {
+      exp.data_trials.push({
+        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
+        "id": this.stim.audio,
+        "response": this.radio,
+        "word": this.stim.word,
+        "poa": this.stim.poa,
+        "vot": this.stim.vot,
+        "f0": this.stim.f0
+      });
+    },
+  });
+  // set up slide for break
+  // TODO : tell them how many blocks are left
+  // slides.break = slide({
+  //   name: "break",
+  //   start: function() {
+  //   },
+  //   button: function() {
+  //     exp.go(); //use exp.go() if and only if there is no "present" data.
+  //   },
+  // });
 
   // slide to collect subject information
   slides.subj_info = slide({
@@ -350,7 +481,9 @@ function init() {
   exp.catch_trials = [];
   var stimuli = trial_stims;
 
-  exp.stimuli = _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order;
+  exp.stimuli = stimuli // _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order;
+  
+  exp.trial_poa = _.shuffle(Object.keys(stimuli)); // shuffle poas of trial
 
   console.log(exp.stimuli) //I added this during tutorial
   exp.n_trials = exp.stimuli.length;
@@ -375,11 +508,12 @@ function init() {
     "example2",
     "example3",
     "startExp",
-    "trial", // 방 빵 팡
-    "break",
-    // "trial", // 간 깐 칸
+    "trial1", // 방 빵 팡
     // "break",
-    // "trial", // 담 땀 탐
+    "trial2", // 간 깐 칸
+    // "break",
+    "trial3", // 담 땀 탐
+    // "break",
     "subj_info",
     "thanks"
   ];
