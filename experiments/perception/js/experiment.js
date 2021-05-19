@@ -9,33 +9,33 @@ function make_slides(f) {
     }
   });
 
-  // set up audio check slide
-  // TODO : record wrong answers
-  slides.check = slide({ // instead of audio_check
-    name : "check", // instead of audio_check
+  // set up audio & Korean check slide 1
+  slides.check1 = slide({ // instead of audio_check
+    name : "check1", // instead of audio_check
     start: function() {
       $('.err').hide();
       // $('.question').hide();
-      document.getElementById("audio_check").play();
+      document.getElementById("audio_check1").play();
         // setTimeout(function(){
           // $('.question').show();
         // },1500);
     },
     button : function() {
       this.radio = $("input[name='number']:checked").val();
-      if (this.radio == "y") {
+      if (this.radio == "true") {
         this.log_responses();
         exp.go();
       }
       else{
         $('.err').show();
+        this.log_responses();
       }
     },
 
     log_responses : function() {
       exp.data_trials.push({
           "slide_number_in_experiment": exp.phase,
-          "id": "check", // instead of "audio_check"
+          "id": "check1", // instead of "audio_check"
           "response": this.radio,
           "vot": "",
           "f0": "",
@@ -45,6 +45,109 @@ function make_slides(f) {
     }
   });
 
+  // set up audio & Korean check slide 2
+  slides.check2 = slide({ // instead of audio_check
+    name : "check2", // instead of audio_check
+    start: function() {
+      $('.err').hide();
+      // $('.question').hide();
+      document.getElementById("audio_check2").play();
+        // setTimeout(function(){
+          // $('.question').show();
+        // },1500);
+    },
+    button : function() {
+      this.radio = $("input[name='number']:checked").val();
+      if (this.radio == "true") {
+        this.log_responses();
+        exp.go();
+      }
+      else{
+        $('.err').show();
+        this.log_responses();
+      }
+    },
+
+    log_responses : function() {
+      exp.data_trials.push({
+          "slide_number_in_experiment": exp.phase,
+          "id": "check2", // instead of "audio_check"
+          "response": this.radio,
+          "vot": "",
+          "f0": "",
+          // "image" : "",
+          // "audio" : "",
+      });
+    }
+  });
+
+  // set up audio & Korean check slide 3
+  slides.check3 = slide({ // instead of audio_check
+    name : "check3", // instead of audio_check
+    start: function() {
+      $('.err').hide();
+      // $('.question').hide();
+      document.getElementById("audio_check3").play();
+        // setTimeout(function(){
+          // $('.question').show();
+        // },1500);
+    },
+    button : function() {
+      this.radio = $("input[name='number']:checked").val();
+      if (this.radio == "true") {
+        this.log_responses();
+        exp.go();
+      }
+      else{
+        $('.err').show();
+        this.log_responses();
+      }
+    },
+
+    log_responses : function() {
+      exp.data_trials.push({
+          "slide_number_in_experiment": exp.phase,
+          "id": "check3", 
+          "response": this.radio,
+          "vot": "",
+          "f0": "",
+      });
+    }
+  });
+
+  // set up audio & Korean check slide 4
+  slides.check4 = slide({ // instead of audio_check
+    name : "check4", // instead of audio_check
+    start: function() {
+      $('.err').hide();
+      // $('.question').hide();
+      document.getElementById("audio_check4").play();
+        // setTimeout(function(){
+          // $('.question').show();
+        // },1500);
+    },
+    button : function() {
+      this.radio = $("input[name='number']:checked").val();
+      if (this.radio == "true") {
+        this.log_responses();
+        exp.go();
+      }
+      else{
+        $('.err').show();
+        this.log_responses();
+      }
+    },
+
+    log_responses : function() {
+      exp.data_trials.push({
+          "slide_number_in_experiment": exp.phase,
+          "id": "check4", 
+          "response": this.radio,
+          "vot": "",
+          "f0": "",
+      });
+    }
+  });
 
   // set up the first example slide
   slides.example1 = slide({
@@ -537,7 +640,10 @@ function init() {
   //blocks of the experiment:
   exp.structure = [
     "i0",
-    "check", // instead of "audio_check"
+    "check1", // instead of "audio_check"
+    "check2",
+    "check3",
+    "check4",
     "example1",
     "example2",
     "example3",
@@ -575,6 +681,8 @@ function init() {
         else if (keyCode == 'Enter')
           exp.slides[exp.structure[exp.slideIndex]].button();
       }
+      // press any key, then it shows in the console the data collected so far
+      console.log(exp.data_trials);
   });
 
   $("#start_button").click(function() {
