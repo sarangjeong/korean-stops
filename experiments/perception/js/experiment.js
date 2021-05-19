@@ -197,7 +197,7 @@ function make_slides(f) {
         ).append(
             $('<label>').prop({
                 for: this.stim.poa + "lenis"
-            }).html(poa_laryngeal[this.stim.poa][0]))
+            }).html("1. " + poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
       $('#tense1').append(
@@ -210,7 +210,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "tense"
-          }).html(poa_laryngeal[this.stim.poa][1]))
+          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
       $('#asp1').append(
@@ -223,7 +223,7 @@ function make_slides(f) {
        ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
-          }).html(poa_laryngeal[this.stim.poa][2]))
+          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
 
       var aud = document.getElementById("stim1");
       aud.src = "audio/"+stim.audio;
@@ -301,7 +301,7 @@ function make_slides(f) {
         ).append(
             $('<label>').prop({
                 for: this.stim.poa + "lenis"
-            }).html(poa_laryngeal[this.stim.poa][0]))
+            }).html("1. " + poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
       $('#tense2').append(
@@ -314,7 +314,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "tense"
-          }).html(poa_laryngeal[this.stim.poa][1]))
+          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
       $('#asp2').append(
@@ -327,7 +327,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
-          }).html(poa_laryngeal[this.stim.poa][2]))
+          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
           
       var aud = document.getElementById("stim2");
       aud.src = "audio/"+stim.audio;
@@ -405,7 +405,7 @@ function make_slides(f) {
         ).append(
             $('<label>').prop({
                 for: this.stim.poa + "lenis"
-            }).html(poa_laryngeal[this.stim.poa][0]))
+            }).html("1. " + poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
       $('#tense3').append(
@@ -418,7 +418,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "tense"
-          }).html(poa_laryngeal[this.stim.poa][1]))
+          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
       $('#asp3').append(
@@ -431,7 +431,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
-          }).html(poa_laryngeal[this.stim.poa][2]))
+          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
 
       var aud = document.getElementById("stim3");
       aud.src = "audio/"+stim.audio;
@@ -561,6 +561,21 @@ function init() {
   //relies on structure and slides being defined
 
   $('.slide').hide(); //hide everything
+
+  // use keyboard to chose options and go next page
+  document.addEventListener('keydown', function(e){
+    const keyCode = e.key;
+      if (['trial1', 'trial2', 'trial3'].includes(exp.structure[exp.slideIndex])) {
+        if(keyCode == '1')
+          $("input[name='word'][value='lenis']").prop("checked", true);
+        else if(keyCode == '2')
+          $("input[name='word'][value='tense']").prop("checked", true);
+        else if(keyCode == '3')
+          $("input[name='word'][value='asp']").prop("checked", true);
+        else if (keyCode == 'Enter')
+          exp.slides[exp.structure[exp.slideIndex]].button();
+      }
+  });
 
   $("#start_button").click(function() {
     exp.go();
