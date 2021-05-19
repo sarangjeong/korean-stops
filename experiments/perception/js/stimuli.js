@@ -1,13 +1,12 @@
 // data for all stimuli in the form of a list of JavaScript objects
 
-var practice_stims = 
-  [{}]
-
-// Properties of each stimulus:
-// audio : "word_vot_num_f0_num.wav"
-// poa : lab / cor / dor 
-// vot : 1 2 3 4 5 6 7 8
-// f0 : 1 2 3 4 5 6 7 8
+/*
+Properties of each stimulus:
+audio : "word_vot_num_f0_num.wav"
+poa : lab / cor / dor 
+vot : 1 2 3 4 5 6 7 8
+f0 : 1 2 3 4 5 6 7 8
+*/
 
 trial_stims = {"lab" : [], "cor" : [], "dor" : []}
 word_poa = {"pang" : "lab", "tam" : "cor", "kan" : "dor"}
@@ -24,4 +23,9 @@ for (const [word, poa] of Object.entries(word_poa)) {
     }
   }
 }
-console.log(trial_stims['lab']);
+
+var practice_stims = [];
+var index_list = [9, 58, 23, 63, 14, 59, 11, 26, 17, 20];
+for (const i of index_list) {
+  practice_stims.push(trial_stims["lab"][i])
+}

@@ -149,118 +149,102 @@ function make_slides(f) {
     }
   });
 
-  // set up the first example slide
-  slides.example1 = slide({
-    name: "example1",
-
-    // this is executed when the slide is shown
+  // set up slide with instructions for practice
+  slides.startPractice = slide({
+    name: "startPractice",
     start: function() {
-      // hide error message
-      $('.err').hide();
     },
-
-    // this is executed when the participant clicks the "Continue button"
     button: function() {
-      // read in the value of the selected radio button
-      this.radio = $("input[name='word']:checked").val();
-      // check whether the participant selected a reasonable value (i.e, 5, 6, or 7)
-      if (this.radio == "tense") {
-        // log response
-        this.log_responses();
-        // continue to next slide
-        exp.go();
-      } else {
-        // participant gave non-reasonable response --> show error message
-        $('.err').show();
-        this.log_responses();
-      }
-    },
-
-    log_responses: function() {
-      // add response to exp.data_trials
-      // this data will be submitted at the end of the experiment
-      exp.data_trials.push({
-        "slide_number_in_experiment": exp.phase,
-        "id": "example1",
-        "response": this.radio,
-        "vot": "",
-        "f0": "",
-        // "strangeSentence": "",
-        // "sentence": "",
-      });
+      exp.go(); //use exp.go() if and only if there is no "present" data.
     },
   });
-  console.log(exp.data_trials)
 
-  // set up slide for second example trial
-  slides.example2 = slide({
-    name: "example2",
+  // set up practice slide
+  slides.practice = slide({
+    name: "practice",
 
-    start: function() {
-      // hide error message
+    present: practice_stims,
+    present_handle : function(stim) {
+
+      // unselect all radio buttons (Leyla)
+      $('#lenis_p').empty()
+      $('#tense_p').empty()
+      $('#asp_p').empty()
+
+      // store stimulus data
+      this.stim = stim;
+
+      // for option 1 (lenis)
+      $('#lenis_p').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "lenis",
+            value: "lenis",
+            name: "word"
+        })
+      ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "lenis"
+        }).html("1. " + poa_laryngeal[this.stim.poa][0]))
+
+      // for option 2 (tense)
+      $('#tense_p').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "tense",
+            value: "tense",
+            name: "word"
+        })
+      ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "tense"
+          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
+
+      // for option 3 (aspirated)
+      $('#asp_p').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "asp",
+            value: "asp",
+            name: "word"
+        })
+        ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "asp"
+          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
+  
+      var aud = document.getElementById("stim_p");
+      aud.src = "audio/"+stim.audio;
+      console.log("audio source:",aud.src)
+      aud.load();
+      aud.play();
+
       $(".err").hide();
+
     },
 
-    // handle button click
     button: function() {
       this.radio = $("input[name='word']:checked").val();
-      if (this.radio == "asp") {
+      if (this.radio) {
         this.log_responses();
-        exp.go();
+        _stream.apply(this);
       } else {
         $('.err').show();
-        this.log_responses();
       }
     },
 
     log_responses: function() {
       exp.data_trials.push({
         "slide_number_in_experiment": exp.phase,
-        "id": "example2",
+        "id": "practice",
         "response": this.radio,
-        "vot": "",
-        "f0": "",
-        // "strangeSentence": "",
-        // "sentence": "",
+        "word": this.stim.word,
+        "poa": this.stim.poa,
+        "vot": this.stim.vot,
+        "f0": this.stim.f0
       });
-    }
-  });
-  console.log(exp.data_trials)
-
-  // set up slide for third example trial
-  slides.example3 = slide({
-    name: "example3",
-
-    start: function() {
-      // hide error message
-      $(".err").hide();
     },
-
-    // handle button click
-    button: function() {
-      this.radio = $("input[name='word']:checked").val();
-      if (this.radio == "lenis") {
-        this.log_responses();
-        exp.go();
-      } else {
-        $('.err').show();
-        this.log_responses();
-      }
-    },
-
-    log_responses: function() {
-      exp.data_trials.push({
-        "slide_number_in_experiment": exp.phase,
-        "id": "example3",
-        "response": this.radio,
-        "vot": "",
-        "f0": "",
-        // "strangeSentence": "",
-        // "sentence": "",
-      });
-    }
   });
-  console.log(exp.data_trials)
 
   // set up slide with instructions for main experiment
   slides.startExp = slide({
@@ -644,9 +628,8 @@ function init() {
     "check2",
     "check3",
     "check4",
-    "example1",
-    "example2",
-    "example3",
+    "startPractice",
+    "practice",
     "startExp",
     "trial1", // 방 빵 팡
     "break1",
@@ -671,7 +654,7 @@ function init() {
   // use keyboard to chose options and go next page
   document.addEventListener('keydown', function(e){
     const keyCode = e.key;
-      if (['trial1', 'trial2', 'trial3'].includes(exp.structure[exp.slideIndex])) {
+      if (['practice', 'trial1', 'trial2', 'trial3'].includes(exp.structure[exp.slideIndex])) {
         if(keyCode == '1')
           $("input[name='word'][value='lenis']").prop("checked", true);
         else if(keyCode == '2')

@@ -154,162 +154,46 @@
       </div>
     </div>
 
-    <!-- first example slide -->
-    <div class="slide" id="example1">
-      <h3>
-        Example 1
-      </h3>
-      <!-- <p class="originalSen">
-        I had some of the banana yogurt.
-      </p>
-      <p class="targetSen">
-        I had <b>some, but not all</b> of the banana yogurt
-      </p> -->
-      <div class="instruction">
-        <i>Which word did you hear?</i>
-      </div>
-      <table class="stops">
-        <tr>
-          <td>
-          </td>
-          <td>
-            <input type="radio" name="word" value="lenis">
-          </td>
-          <td>
-            <input type="radio" name="word" value="tense">
-          </td>
-          <td>
-            <input type="radio" name="word" value="asp">
-          </td>
-          <td>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            불
-          </td>
-          <td>
-            뿔
-          </td>
-          <td>
-            풀
-          </td>
-          <td></td>
-        </tr>
-      </table><br>
+    <!-- practice instructions slide -->
+    <div class="slide" id="startPractice">
       <br>
+      <br>
+      <p id="practiceInstruction" class="left">
+        ///Great! Now we can start practice. You will now read 20 sentences. Your task is to rate how similar the red sentence is to the blue sentence where the word 'some' is replaced with 'some, but not all'. Sometimes, the blue sentence will sound strange. In this case, give a rating to the best of your ability, but also click the checkbox next to "The blue sentence sounds strange".
+      </p>
+      <div class="center">
+        <button class="continueButton" onclick="_s.button()">Continue</button>
+      </div>
+    </div>
+
+    <!-- practice slide -->
+    <div class="slide" id="practice">
+      <h3>
+        Practice
+      </h3>
+
+      <!-- audio -->
+      <audio id="stim_p">
+        <source id="wav_src_p" src="" type="audio/wav">Your browser does not support the audio element.</audio>
+
+      <div class="instruction">
+        <i>방금 들린 단어를 고르세요. <br>
+        키보드 숫자키 1, 2, 3을 눌러서 단어를 선택하고 <br>
+        키보드 엔터키를 눌러서 다음으로 넘어갈 수 있습니다. <br>
+        단어가 잘 안 들린다면 시스템 볼륨을 조정해 주세요.</i>
+      </div>
+
+      <div id="lenis_p"></div>
+      <div id="tense_p"></div>
+      <div id="asp_p"></div>
+
       <div class="center">
         <button class="continueButton" onclick="_s.button()">Continue</button>
       </div>
       <div class="err"> <!-- Hidden unless participant clicks Continue without choosing one. -->
-        <p>
-          You need to choose a word based on what you have just heard. <br>
-          In this example, you have heard "뿔".
-        </p>
-      </div>
-    </div>
-
-    <!-- second example slide -->
-    <div class="slide" id="example2">
-      <h3>
-        Example 2
-      </h3>
-      <div class="instruction">
-        <i>Which word did you hear?</i>
-      </div>
-      <table class="stops">
-        <tr>
-          <td>
-          </td>
-          <td>
-            <input type="radio" name="word" value="lenis">
-          </td>
-          <td>
-            <input type="radio" name="word" value="tense">
-          </td>
-          <td>
-            <input type="radio" name="word" value="asp">
-          </td>
-          <td>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            달
-          </td>
-          <td>
-            딸
-          </td>
-          <td>
-            탈
-          </td>
-          <td></td>
-        </tr>
-      </table><br>
-      <br>
-      <br>
-      <div class="center">
-        <button class="continueButton" onclick="_s.button()">Continue</button>
-      </div>
-      <div class="err">
         <br>
         <p>
-          You need to choose a word based on what you have just heard. <br>
-          In this example, you have heard "탈".
-        </p>
-      </div>
-    </div>
-
-    <!-- third example slide -->
-    <div class="slide" id="example3">
-      <h3>
-        Example 3
-      </h3>
-      <div class="instruction">
-        <i>Which word did you hear?</i>
-      </div>
-      <table class="stops">
-        <tr>
-          <td>
-          </td>
-          <td>
-            <input type="radio" name="word" value="lenis">
-          </td>
-          <td>
-            <input type="radio" name="word" value="tense">
-          </td>
-          <td>
-            <input type="radio" name="word" value="asp">
-          </td>
-          <td>
-          </td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>
-            골
-          </td>
-          <td>
-            꼴
-          </td>
-          <td>
-            콜
-          </td>
-          <td></td>
-        </tr>
-      </table><br>
-      <br>
-      <br>
-      <div class="center">
-        <button class="continueButton" onclick="_s.button()">Continue</button>
-      </div>
-      <div class="err">
-        <br>
-        <p>
-          You need to choose a word based on what you have just heard. <br>
-          In this example, you have heard "골".
+          Continue 버튼을 클릭하기 전에 단어 중 하나를 선택하세요.
         </p>
       </div>
     </div>
