@@ -254,6 +254,7 @@ function make_slides(f) {
     start: function() {
     },
     button: function() {
+      exp.trial1T = Date.now();
       exp.go(); //use exp.go() if and only if there is no "present" data.
     },
   });
@@ -261,7 +262,6 @@ function make_slides(f) {
   // main experiment, block 1
   slides.trial1 = slide({
     name: "trial1",
-
     present: _.shuffle(exp.stimuli[exp.trial_poa[0]]),
     present_handle : function(stim) {
 
@@ -360,8 +360,10 @@ function make_slides(f) {
   slides.break1 = slide({
     name: "break1",
     start: function() {
+      exp.trial1T = Date.now() - exp.trial1T;
     },
     button: function() {
+      exp.trial2T = Date.now();
       exp.go(); //use exp.go() if and only if there is no "present" data.
     },
   });
@@ -467,8 +469,10 @@ function make_slides(f) {
   slides.break2 = slide({
     name: "break2",
     start: function() {
+      exp.trial2T = Date.now() - exp.trial2T;
     },
     button: function() {
+      exp.trial3T = Date.now();
       exp.go(); //use exp.go() if and only if there is no "present" data.
     },
   });
@@ -572,6 +576,9 @@ function make_slides(f) {
   // slide to collect subject information
   slides.subj_info = slide({
     name: "subj_info",
+    start: function() {
+      exp.trial3T = Date.now() - exp.trial3T;
+    },
     submit: function(e) {
       exp.subj_data = {
         language: $("#language").val(),
@@ -612,7 +619,10 @@ function make_slides(f) {
         "system": exp.system,
         "condition": exp.condition,
         "subject_information": exp.subj_data,
-        "time_in_minutes": (Date.now() - exp.startT) / 60000
+        "time_in_minutes": (Date.now() - exp.startT) / 60000,
+        "tiral_1_time_in_minutes": exp.trial1T / 60000,
+        "tiral_2_time_in_minutes": exp.trial2T / 60000,
+        "tiral_3_time_in_minutes": exp.trial3T / 60000,
       };
       proliferate.submit(exp.data); // audio check and practice data???
     }
