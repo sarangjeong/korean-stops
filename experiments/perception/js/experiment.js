@@ -566,7 +566,7 @@ function make_slides(f) {
         language_parents: $("#language_parents").val(),
         language_other: $("#language_other").val(),
         enjoyment: $("#enjoyment").val(),
-        asses: $('input[name="assess"]:checked').val(),
+        assess: $('input[name="assess"]:checked').val(),
         age: $("#age").val(),
         gender: $("#gender").val(),
         fairprice: $("#fairprice").val(),
