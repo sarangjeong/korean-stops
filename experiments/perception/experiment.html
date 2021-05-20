@@ -369,6 +369,9 @@
           그외에 할 줄 아는 언어와 구사 수준: <input type="text" id="language_other">
         </p><label>예: 영어 (고급), 중국어 (중급)</label>
         <p>
+          (선택) 이어폰/헤드셋 제품명 또는 모델명: <input type="text" id="equipment">
+        </p>
+        <p>
           (선택) 나는 지시사항을 모두 읽고 단어를 듣고 고를 때 주의를 기울였다
         </p><label><input type="radio" name="assess" value="Yes">그렇다</label> <label><input type="radio" name="assess" value="No">아니다</label> <label><input type="radio" name="assess" value="Confused">잘 모르겠다</label>
         <p>
@@ -405,12 +408,18 @@
         <textarea id="comments" rows="3" cols="50"></textarea><br>
         <button onclick="_s.submit()">Submit</button>
       </div>
+      <div class="err">
+        <p>
+        Submit 버튼을 클릭하기 전에 필수 항목을 모두 작성해 주세요.
+        </p>
+      </div>
     </div>
 
     <!-- final slide -->
     <div id="thanks" class="slide js">
       <p class="big">
-        시간을 내주셔서 감사합니다!
+        <br>
+        귀한 시간 내주셔서 감사합니다!
       </p>
     </div>
 

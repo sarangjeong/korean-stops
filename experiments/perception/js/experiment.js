@@ -565,6 +565,7 @@ function make_slides(f) {
         language: $("#language").val(),
         language_parents: $("#language_parents").val(),
         language_other: $("#language_other").val(),
+        equipment: $("#equipment").val(),
         enjoyment: $("#enjoyment").val(),
         assess: $('input[name="assess"]:checked').val(),
         age: $("#age").val(),
@@ -573,7 +574,19 @@ function make_slides(f) {
         comments: $("#comments").val()
       };
       
-      exp.go(); //use exp.go() if and only if there is no "present" data.
+      $(".err").hide();
+
+      if (
+        exp.subj_data["language"] == "" || 
+        exp.subj_data["language_parents"] == "" || 
+        exp.subj_data["language_other"] == "" || 
+        exp.subj_data["gender"] == "" || 
+        exp.subj_data["age"] == "") {
+        $('.err').show();
+      } else {
+        exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
+      }
+      
     }
   });
 
