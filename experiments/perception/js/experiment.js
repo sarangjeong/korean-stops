@@ -29,6 +29,9 @@ function make_slides(f) {
         if (exp.check_fails > 1) {
           $('.err').hide();
           $('.failure').show();
+          setTimeout(function(){
+            $('.slide').hide();
+          },3000);
         }
         else {
           exp.go();
@@ -688,7 +691,6 @@ function init() {
         else if (keyCode == 'p')
           console.log(exp.data_trials);
       }
-      
   });
   */
 
