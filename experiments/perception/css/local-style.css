@@ -140,4 +140,6 @@ td:nth-child(9) {
 
 .slide {
 	border: 1px solid #666;
+    width: 800px;
+    height: 720px;
 }
