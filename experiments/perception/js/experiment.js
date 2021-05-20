@@ -14,6 +14,7 @@ function make_slides(f) {
     name : "check1", // instead of audio_check
     start: function() {
       $('.err').hide();
+      $('.failure').hide();
       // $('.question').hide();
       document.getElementById("audio_check1").play();
         // setTimeout(function(){
@@ -24,10 +25,18 @@ function make_slides(f) {
       this.radio = $("input[name='number']:checked").val();
       if (this.radio == "true") {
         this.log_responses();
-        exp.go();
+
+        if (exp.check_fails > 1) {
+          $('.err').hide();
+          $('.failure').show();
+        }
+        else {
+          exp.go();
+        }
       }
       else{
         $('.err').show();
+        exp.check_fails += 1;
         this.log_responses();
       }
     },
@@ -35,12 +44,11 @@ function make_slides(f) {
     log_responses : function() {
       exp.data_trials.push({
           "slide_number_in_experiment": exp.phase,
-          "id": "check1", // instead of "audio_check"
+          "id": "check", // instead of "audio_check"
           "response": this.radio,
+          "word":  "check1"
           // "vot": "",
-          // "f0": "",
-          // "image" : "",
-          // "audio" : "",
+          // "f0": ""
       });
     }
   });
@@ -50,6 +58,7 @@ function make_slides(f) {
     name : "check2", // instead of audio_check
     start: function() {
       $('.err').hide();
+      $('.failure').hide();
       // $('.question').hide();
       document.getElementById("audio_check2").play();
         // setTimeout(function(){
@@ -60,10 +69,17 @@ function make_slides(f) {
       this.radio = $("input[name='number']:checked").val();
       if (this.radio == "true") {
         this.log_responses();
-        exp.go();
+
+        if (exp.check_fails > 1) {
+          $('.failure').show();
+        }
+        else {
+          exp.go();
+        }
       }
       else{
         $('.err').show();
+        exp.check_fails += 1;
         this.log_responses();
       }
     },
@@ -71,12 +87,11 @@ function make_slides(f) {
     log_responses : function() {
       exp.data_trials.push({
           "slide_number_in_experiment": exp.phase,
-          "id": "check2", // instead of "audio_check"
+          "id": "check", 
           "response": this.radio,
+          "word":  "check2"
           // "vot": "",
-          // "f0": "",
-          // "image" : "",
-          // "audio" : "",
+          // "f0": ""
       });
     }
   });
@@ -86,6 +101,7 @@ function make_slides(f) {
     name : "check3", // instead of audio_check
     start: function() {
       $('.err').hide();
+      $('.failure').hide();
       // $('.question').hide();
       document.getElementById("audio_check3").play();
         // setTimeout(function(){
@@ -96,10 +112,17 @@ function make_slides(f) {
       this.radio = $("input[name='number']:checked").val();
       if (this.radio == "true") {
         this.log_responses();
-        exp.go();
+
+        if (exp.check_fails > 1) {
+          $('.failure').show();
+        }
+        else {
+          exp.go();
+        }
       }
       else{
         $('.err').show();
+        exp.check_fails += 1;
         this.log_responses();
       }
     },
@@ -107,44 +130,11 @@ function make_slides(f) {
     log_responses : function() {
       exp.data_trials.push({
           "slide_number_in_experiment": exp.phase,
-          "id": "check3", 
+          "id": "check", 
           "response": this.radio,
+          "word":  "check3"
           // "vot": "",
-          // "f0": "",
-      });
-    }
-  });
-
-  // set up audio & Korean check slide 4
-  slides.check4 = slide({ // instead of audio_check
-    name : "check4", // instead of audio_check
-    start: function() {
-      $('.err').hide();
-      // $('.question').hide();
-      document.getElementById("audio_check4").play();
-        // setTimeout(function(){
-          // $('.question').show();
-        // },5500);
-    },
-    button : function() {
-      this.radio = $("input[name='number']:checked").val();
-      if (this.radio == "true") {
-        this.log_responses();
-        exp.go();
-      }
-      else{
-        $('.err').show();
-        this.log_responses();
-      }
-    },
-
-    log_responses : function() {
-      exp.data_trials.push({
-          "slide_number_in_experiment": exp.phase,
-          "id": "check4", 
-          "response": this.radio,
-          // "vot": "",
-          // "f0": "",
+          // "f0": ""
       });
     }
   });
@@ -629,7 +619,9 @@ function init() {
   exp.catch_trials = [];
   var stimuli = trial_stims;
 
-  exp.stimuli = stimuli // _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order;
+  exp.stimuli = stimuli; // _.shuffle(stimuli); //call _.shuffle(stimuli) to randomize the order;
+  
+  exp.check_fails = 0;
   
   // determine which poa (방빵팡/담땀탐/간깐칸) to put in each block
   exp.trial_poa = ['lab', 'lab', 'lab'] // _.shuffle(Object.keys(stimuli)); // shuffle poas of trial
@@ -655,7 +647,6 @@ function init() {
     "check1", // instead of "audio_check"
     "check2",
     "check3",
-    "check4",
     "startPractice",
     "practice",
     "startExp",
