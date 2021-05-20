@@ -30,8 +30,8 @@ function make_slides(f) {
           $('.err').hide();
           $('.failure').show();
           setTimeout(function(){
-            $('.slide').hide();
-          },3000);
+            close();
+          },5000);
         }
         else {
           exp.go();
@@ -75,6 +75,9 @@ function make_slides(f) {
 
         if (exp.check_fails > 1) {
           $('.failure').show();
+          setTimeout(function(){
+            close();
+          },5000);
         }
         else {
           exp.go();
@@ -118,6 +121,9 @@ function make_slides(f) {
 
         if (exp.check_fails > 1) {
           $('.failure').show();
+          setTimeout(function(){
+            close();
+          },5000);
         }
         else {
           exp.go();
