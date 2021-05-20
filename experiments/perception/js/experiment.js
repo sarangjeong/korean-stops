@@ -563,31 +563,33 @@ function make_slides(f) {
     submit: function(e) {
       exp.subj_data = {
         language: $("#language").val(),
+        language_parents: $("#language_parents").val(),
+        language_other: $("#language_other").val(),
         enjoyment: $("#enjoyment").val(),
         asses: $('input[name="assess"]:checked').val(),
         age: $("#age").val(),
         gender: $("#gender").val(),
-        education: $("#education").val(),
         fairprice: $("#fairprice").val(),
         comments: $("#comments").val()
       };
+      
       exp.go(); //use exp.go() if and only if there is no "present" data.
     }
   });
 
-  // fianl slide
+  // final slide
   slides.thanks = slide({
     name: "thanks",
     start: function() {
       exp.data = {
         "trials": exp.data_trials,
-        "catch_trials": exp.catch_trials,
+        "catch_trials": exp.catch_trials, // what is this???
         "system": exp.system,
         "condition": exp.condition,
         "subject_information": exp.subj_data,
         "time_in_minutes": (Date.now() - exp.startT) / 60000
       };
-      proliferate.submit(exp.data);
+      proliferate.submit(exp.data); // audio check and practice data???
     }
   });
 
