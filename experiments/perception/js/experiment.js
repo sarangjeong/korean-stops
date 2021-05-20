@@ -667,6 +667,8 @@ function init() {
   $('.slide').hide(); //hide everything
 
   // use keyboard to chose options and go next page
+  // TODO : fix bug error message does not go away when using keyboard
+  /*
   document.addEventListener('keydown', function(e){
     const keyCode = e.key;
       if (['practice', 'trial1', 'trial2', 'trial3'].includes(exp.structure[exp.slideIndex])) {
@@ -678,10 +680,13 @@ function init() {
           $("input[name='word'][value='asp']").prop("checked", true);
         else if (keyCode == 'Enter')
           exp.slides[exp.structure[exp.slideIndex]].button();
+        // press any key, then it shows in the console the data collected so far
+        else if (keyCode == 'p')
+          console.log(exp.data_trials);
       }
-      // press any key, then it shows in the console the data collected so far
-      console.log(exp.data_trials);
+      
   });
+  */
 
   $("#start_button").click(function() {
     exp.go();
