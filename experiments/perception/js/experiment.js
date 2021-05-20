@@ -185,7 +185,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "lenis"
-        }).html("1. " + poa_laryngeal[this.stim.poa][0]))
+        }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
       $('#tense_p').append(
@@ -198,7 +198,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "tense"
-          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
+          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
       $('#asp_p').append(
@@ -211,7 +211,7 @@ function make_slides(f) {
         ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
-          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
+          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
   
       var aud = document.getElementById("stim_p");
       aud.src = "audio/"+stim.audio;
@@ -287,7 +287,7 @@ function make_slides(f) {
         ).append(
             $('<label>').prop({
                 for: this.stim.poa + "lenis"
-            }).html("1. " + poa_laryngeal[this.stim.poa][0]))
+            }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
       $('#tense1').append(
@@ -300,7 +300,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "tense"
-          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
+          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
       $('#asp1').append(
@@ -313,7 +313,7 @@ function make_slides(f) {
        ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
-          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
+          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
 
       var aud = document.getElementById("stim1");
       aud.src = "audio/"+stim.audio;
@@ -395,7 +395,7 @@ function make_slides(f) {
         ).append(
             $('<label>').prop({
                 for: this.stim.poa + "lenis"
-            }).html("1. " + poa_laryngeal[this.stim.poa][0]))
+            }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
       $('#tense2').append(
@@ -408,7 +408,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "tense"
-          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
+          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
       $('#asp2').append(
@@ -421,7 +421,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
-          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
+          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
           
       var aud = document.getElementById("stim2");
       aud.src = "audio/"+stim.audio;
@@ -502,7 +502,7 @@ function make_slides(f) {
         ).append(
             $('<label>').prop({
                 for: this.stim.poa + "lenis"
-            }).html("1. " + poa_laryngeal[this.stim.poa][0]))
+            }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
 
       // for option 2 (tense)
       $('#tense3').append(
@@ -515,7 +515,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "tense"
-          }).html("2. " + poa_laryngeal[this.stim.poa][1]))
+          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
 
       // for option 3 (aspirated)
       $('#asp3').append(
@@ -528,7 +528,7 @@ function make_slides(f) {
       ).append(
         $('<label>').prop({
             for: this.stim.poa + "asp"
-          }).html("3. " + poa_laryngeal[this.stim.poa][2]))
+          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
 
       var aud = document.getElementById("stim3");
       aud.src = "audio/"+stim.audio;
