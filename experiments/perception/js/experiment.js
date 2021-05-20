@@ -14,11 +14,11 @@ function make_slides(f) {
     name : "check1", // instead of audio_check
     start: function() {
       $('.err').hide();
-      // $('.question').hide();
+      $('.question').hide();
       document.getElementById("audio_check1").play();
-        // setTimeout(function(){
-          // $('.question').show();
-        // },1500);
+        setTimeout(function(){
+          $('.question').show();
+        },4500);
     },
     button : function() {
       this.radio = $("input[name='number']:checked").val();
@@ -50,11 +50,11 @@ function make_slides(f) {
     name : "check2", // instead of audio_check
     start: function() {
       $('.err').hide();
-      // $('.question').hide();
+      $('.question').hide();
       document.getElementById("audio_check2").play();
-        // setTimeout(function(){
-          // $('.question').show();
-        // },1500);
+        setTimeout(function(){
+          $('.question').show();
+        },4000);
     },
     button : function() {
       this.radio = $("input[name='number']:checked").val();
@@ -86,11 +86,11 @@ function make_slides(f) {
     name : "check3", // instead of audio_check
     start: function() {
       $('.err').hide();
-      // $('.question').hide();
+      $('.question').hide();
       document.getElementById("audio_check3").play();
-        // setTimeout(function(){
-          // $('.question').show();
-        // },1500);
+        setTimeout(function(){
+          $('.question').show();
+        },5000);
     },
     button : function() {
       this.radio = $("input[name='number']:checked").val();
@@ -120,11 +120,11 @@ function make_slides(f) {
     name : "check4", // instead of audio_check
     start: function() {
       $('.err').hide();
-      // $('.question').hide();
+      $('.question').hide();
       document.getElementById("audio_check4").play();
-        // setTimeout(function(){
-          // $('.question').show();
-        // },1500);
+        setTimeout(function(){
+          $('.question').show();
+        },5500);
     },
     button : function() {
       this.radio = $("input[name='number']:checked").val();
@@ -217,7 +217,10 @@ function make_slides(f) {
       aud.src = "audio/"+stim.audio;
       console.log("audio source:",aud.src)
       aud.load();
-      aud.play();
+      // aud.play();
+      setTimeout(function(){ 
+        aud.play(); 
+        }, 300)
 
       $(".err").hide();
 
