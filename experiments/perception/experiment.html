@@ -170,7 +170,8 @@
       <br>
       <br>
       <p id="practiceInstruction" class="left">
-        ///Great! Now we can start practice. You will now read 20 sentences. Your task is to rate how similar the red sentence is to the blue sentence where the word 'some' is replaced with 'some, but not all'. Sometimes, the blue sentence will sound strange. In this case, give a rating to the best of your ability, but also click the checkbox next to "The blue sentence sounds strange".
+        잘 하셨습니다! 이제 실제 실험을 시작하기에 앞서 연습을 해볼 것입니다. 단어를 듣고, 주어진 선택지 중에서 그 단어를 골라 주세요. 
+        확실하지 않을 때는 가장 비슷한 선택지를 고르시면 됩니다. 연습 단계에서는 10개의 단어를 듣게 됩니다.
       </p>
       <div class="center">
         <button class="continueButton" onclick="_s.button()">Continue</button>
@@ -180,7 +181,7 @@
     <!-- practice slide -->
     <div class="slide" id="practice">
       <h3>
-        Practice
+        연습 단계
       </h3>
 
       <!-- audio -->
@@ -214,7 +215,9 @@
       <br>
       <br>
       <p id="instruct-text" class="left">
-        ///Great! Now we can start the real experiment. You will now read 20 sentences. Your task is to rate how similar the red sentence is to the blue sentence where the word 'some' is replaced with 'some, but not all'. Sometimes, the blue sentence will sound strange. In this case, give a rating to the best of your ability, but also click the checkbox next to "The blue sentence sounds strange".
+        잘 하셨습니다! 이제 실제 실험을 시작하겠습니다. 실험은 3개의 세션으로 구성되어 있습니다. 각 세션에서는 64개의 단어를 듣게 됩니다. 
+        단어를 듣고, 주어진 선택지 중에서 그 단어를 골라 주세요. 확실하지 않을 때는 가장 비슷한 선택지를 고르시면 됩니다. 
+        Continue 버튼을 클릭하면 첫 번째 세션이 시작됩니다.
       </p>
       <div class="center">
         <button class="continueButton" onclick="_s.button()">Continue</button>
@@ -333,12 +336,8 @@
           언어 배경 설문
         </div>
         <p class="info">
-          (선택) 표시가 된 항목은 답변하지 않으셔도 되지만, 저희가 귀하의 실험 결과를 이해하는 데 도움이 될 것입니다.
+          (선택) 항목은 답변하지 않으셔도 되지만, 저희가 실험 결과를 이해하는 데 도움이 될 것입니다.
         </p>
-        <p>
-          나는 지시사항을 모두 읽고 단어를 듣고 고를 때 주의를 기울였다
-        </p><label><input type="radio" name="assess" value="Yes">그렇다</label> <label><input type="radio" name="assess" value="No">아니다</label> <label><input type="radio" name="assess" value="Confused">잘 모르겠다</label>
-        <p>
           성별: <select id="gender">
             <option value="">
             </option>
@@ -367,6 +366,10 @@
         <p>
           그외에 할 줄 아는 언어와 구사 수준: <input type="text" id="language_other">
         </p><label>예: 영어 (고급), 중국어 (중급)</label>
+        <p>
+          (선택) 나는 지시사항을 모두 읽고 단어를 듣고 고를 때 주의를 기울였다
+        </p><label><input type="radio" name="assess" value="Yes">그렇다</label> <label><input type="radio" name="assess" value="No">아니다</label> <label><input type="radio" name="assess" value="Confused">잘 모르겠다</label>
+        <p>
         <p>
           (선택) 참가비에 대한 평가
         </p><select id="fairprice">
