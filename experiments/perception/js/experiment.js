@@ -584,6 +584,7 @@ function make_slides(f) {
         language: $("#language").val(),
         language_parents: $("#language_parents").val(),
         language_other: $("#language_other").val(),
+        impairment: $("#impairment").val(),
         equipment: $("#equipment").val(),
         enjoyment: $("#enjoyment").val(),
         assess: $('input[name="assess"]:checked').val(),
@@ -599,6 +600,7 @@ function make_slides(f) {
         exp.subj_data["language"] == "" || 
         exp.subj_data["language_parents"] == "" || 
         exp.subj_data["language_other"] == "" || 
+        exp.subj_data["impairment"] == "" ||
         exp.subj_data["gender"] == "" || 
         exp.subj_data["age"] == "") {
         $('.err').show();
