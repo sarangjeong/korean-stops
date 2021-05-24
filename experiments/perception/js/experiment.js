@@ -620,9 +620,9 @@ function make_slides(f) {
         "condition": exp.condition,
         "subject_information": exp.subj_data,
         "time_in_minutes": (Date.now() - exp.startT) / 60000,
-        "tiral_1_time_in_minutes": exp.trial1T / 60000,
-        "tiral_2_time_in_minutes": exp.trial2T / 60000,
-        "tiral_3_time_in_minutes": exp.trial3T / 60000,
+        "triral_1_time_in_minutes": exp.trial1T / 60000,
+        "triral_2_time_in_minutes": exp.trial2T / 60000,
+        "triral_3_time_in_minutes": exp.trial3T / 60000,
       };
       proliferate.submit(exp.data); // audio check and practice data???
     }
