@@ -600,7 +600,7 @@ function make_slides(f) {
         exp.subj_data["language"] == "" || 
         exp.subj_data["language_parents"] == "" || 
         exp.subj_data["language_other"] == "" || 
-        exp.subj_data["impairment"] == "" ||
+        exp.subj_data["impairment"] == "-1" ||
         exp.subj_data["gender"] == "" || 
         exp.subj_data["age"] == "") {
         $('.err').show();
