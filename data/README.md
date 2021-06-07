@@ -1,1 +1,1 @@
-This is data I collected. Enjoy!
+This folder contains data re-structured using R.

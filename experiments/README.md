@@ -1,1 +1,1 @@
-this experiment is about change in Korean stop contrast. Enjoy! :)
+This folder contains online experiments and experimental stimuli re: Korean stop contrast.

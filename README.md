@@ -1,2 +1,2 @@
-# my-project
-Template repository for web-based experiment projects.
+# Korean-stop-contrast
+This is my project on Korean stop contrast and the relation between production and perception under a sound change.
