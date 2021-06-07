@@ -2,13 +2,11 @@
 # Korean stop contrast, perception, young (pilot)
 # created by Sarang Jeong on June 6, 2021
 
-
 ##########
 # set-up #
 ##########
 
 # load libraries
-
 library(tidyverse)
 library(lme4)
 library(ggplot2)
@@ -16,7 +14,6 @@ library(MuMIn)
 source("helpers.R")
 
 # set working directory
-
 this.dir <- dirname(rstudioapi::getSourceEditorContext()$path)
 setwd(this.dir)
 
@@ -370,3 +367,6 @@ vif.mer(m.tense5)
 summary(m.asp3)
 summary(m.lenis1)
 summary(m.tense5)
+
+### save df as csv file ###
+write.csv(stops, file="stops.csv")
