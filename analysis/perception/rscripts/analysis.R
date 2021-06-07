@@ -22,16 +22,16 @@ setwd(this.dir)
 ##################
 
 # load trial data
-trials <- read.csv("korean_stop_contrast_perception_labial_pilot_young-trials.csv", stringsAsFactors = TRUE)
+trials <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-trials.csv", stringsAsFactors = TRUE)
 
 # load time data
-whole_time <- read.csv("korean_stop_contrast_perception_labial_pilot_young-time_in_minutes.csv", stringsAsFactors = TRUE)
-trial_1_time <- read.csv("korean_stop_contrast_perception_labial_pilot_young-triral_1_time_in_minutes.csv", stringsAsFactors = TRUE)
-trial_2_time <- read.csv("korean_stop_contrast_perception_labial_pilot_young-triral_2_time_in_minutes.csv", stringsAsFactors = TRUE)
-trial_3_time <- read.csv("korean_stop_contrast_perception_labial_pilot_young-triral_3_time_in_minutes.csv", stringsAsFactors = TRUE)
+whole_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-time_in_minutes.csv", stringsAsFactors = TRUE)
+trial_1_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-triral_1_time_in_minutes.csv", stringsAsFactors = TRUE)
+trial_2_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-triral_2_time_in_minutes.csv", stringsAsFactors = TRUE)
+trial_3_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-triral_3_time_in_minutes.csv", stringsAsFactors = TRUE)
 
 # load subject info data whose encoding I manually changed to ANSI to fix Korean encoding problem
-subject_info <- read.csv("korean_stop_contrast_perception_labial_pilot_young-subject_information_ANSI.csv")
+subject_info <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-subject_information_ANSI.csv")
 subject_info$assess = as.factor(subject_info$assess)
 subject_info$gender = as.factor(subject_info$gender)
 
@@ -62,6 +62,7 @@ stops$subject = as.factor(stops$subject)
 
 # drop audio check & practice rows
 stops <- stops[stops$id != "check" & stops$id != "practice" ,]
+nrow(stops)
 
 # drop unnecessary columns
 stops$error <- NULL; stops$response_practice <- NULL
@@ -77,7 +78,7 @@ ks_speaker <- c("6", "8", "12")
 stops <- stops[!(stops$subject %in% ks_speaker) ,]
 nrow(stops)
 
-# 3) more than 3 non-aspirated responses for vot >= 6 & f0 >= 7: 0
+# 3) more than 3 non-aspirated responses for vot >= 6 & f0 >= 7: 0 ("18" has 2 such responses)
 stops[stops$f0 >= 7 & stops$vot >= 6 & stops$response!="asp",]$subject
 
 # drop empty factor levels after exclusion
@@ -106,64 +107,64 @@ stops <- stops %>%
 ### data wrangling for PLOTS ###
 
 # make a new df, create response count columns
-stops_sum <- stops %>%
+stops_mean <- stops %>%
   group_by(f0, vot) %>%
   summarise(lenis_num = sum(response=="lenis"), 
             tense_num = sum(response=="tense"),
             asp_num = sum(response=="asp"))
 
 # sum of response counts for each stimulus
-stops_sum$all_num = stops_sum$lenis_num + stops_sum$tense_num + stops_sum$asp_num
+stops_mean$all_num = stops_mean$lenis_num + stops_mean$tense_num + stops_mean$asp_num
 
 stops %>% count(f0, vot, response) # check if numbers are correct
 
 # create response % columns
-stops_sum$lenis <- stops_sum$lenis_num / stops_sum$all_num
-stops_sum$tense <- stops_sum$tense_num / stops_sum$all_num
-stops_sum$asp <- stops_sum$asp_num / stops_sum$all_num
+stops_mean$lenis <- stops_mean$lenis_num / stops_mean$all_num
+stops_mean$tense <- stops_mean$tense_num / stops_mean$all_num
+stops_mean$asp <- stops_mean$asp_num / stops_mean$all_num
 
-stops_sum$lenis + stops_sum$tense + stops_sum$asp # check if columns add up to 1
+stops_mean$lenis + stops_mean$tense + stops_mean$asp # check if columns add up to 1
 
 # drop count columns 
-stops_sum <- subset(stops_sum, select = -c(lenis_num, tense_num, asp_num, all_num))
+stops_mean <- subset(stops_mean, select = -c(lenis_num, tense_num, asp_num, all_num))
 
 # create predominant response column
-stops_sum$predominant <- "none"
-stops_sum$predominant_num <- 0
+stops_mean$predominant <- "none"
+stops_mean$predominant_num <- 0
 
 # assign predominant category name
-stops_sum[(stops_sum$lenis > stops_sum$tense) & (stops_sum$lenis > stops_sum$asp) ,]$predominant <- "lenis"
-stops_sum[(stops_sum$tense > stops_sum$lenis) & (stops_sum$tense > stops_sum$asp) ,]$predominant <- "tense"
-stops_sum[(stops_sum$asp > stops_sum$lenis) & (stops_sum$asp > stops_sum$tense) ,]$predominant <- "asp"
+stops_mean[(stops_mean$lenis > stops_mean$tense) & (stops_mean$lenis > stops_mean$asp) ,]$predominant <- "lenis"
+stops_mean[(stops_mean$tense > stops_mean$lenis) & (stops_mean$tense > stops_mean$asp) ,]$predominant <- "tense"
+stops_mean[(stops_mean$asp > stops_mean$lenis) & (stops_mean$asp > stops_mean$tense) ,]$predominant <- "asp"
 
 # assign predominant category %
-stops_sum[stops_sum$predominant=="lenis" ,]$predominant_num <- stops_sum[stops_sum$predominant=="lenis" ,]$lenis
-stops_sum[stops_sum$predominant=="tense" ,]$predominant_num <- stops_sum[stops_sum$predominant=="tense" ,]$tense
-stops_sum[stops_sum$predominant=="asp" ,]$predominant_num <- stops_sum[stops_sum$predominant=="asp" ,]$asp
+stops_mean[stops_mean$predominant=="lenis" ,]$predominant_num <- stops_mean[stops_mean$predominant=="lenis" ,]$lenis
+stops_mean[stops_mean$predominant=="tense" ,]$predominant_num <- stops_mean[stops_mean$predominant=="tense" ,]$tense
+stops_mean[stops_mean$predominant=="asp" ,]$predominant_num <- stops_mean[stops_mean$predominant=="asp" ,]$asp
 
 # manually change the values when the largest category is not single (i.e. tied first place)
 
 # identify tied cases
-stops_sum[stops_sum$predominant == "none",] #f0==4 & vot==3, f0==4 & vot==4
+stops_mean[stops_mean$predominant == "none",] #f0==4 & vot==3, f0==4 & vot==4
 
 # f0==4 & vot==3
-stops_sum[stops_sum$f0 == 4 & stops_sum$vot==3 ,]$predominant <- "tense & lenis"
-stops_sum[stops_sum$f0 == 4 & stops_sum$vot==3 ,]$predominant_num <- stops_sum[stops_sum$f0 == 4 & stops_sum$vot==3 ,]$lenis
+stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$predominant <- "tense & lenis"
+stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$predominant_num <- stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$lenis
 
 # f0==4 & vot==4
-stops_sum[stops_sum$f0 == 4 & stops_sum$vot==4 ,]$predominant <- "asp & lenis"
-stops_sum[stops_sum$f0 == 4 & stops_sum$vot==4 ,]$predominant_num <- stops_sum[stops_sum$f0 == 4 & stops_sum$vot==4 ,]$lenis
+stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$predominant <- "asp & lenis"
+stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$predominant_num <- stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$lenis
 
-stops_sum[stops_sum$f0 == 4 & (stops_sum$vot==3 | stops_sum$vot==4) ,] # check
+stops_mean[stops_mean$f0 == 4 & (stops_mean$vot==3 | stops_mean$vot==4) ,] # check
 
 # new column for plot label
 
 # initial
-stops_sum$label <- toupper(substr(stops_sum$predominant, 1, 1))
+stops_mean$label <- toupper(substr(stops_mean$predominant, 1, 1))
 
 # manually change the values when the largest category is not single
-stops_sum[stops_sum$f0 == 4 & stops_sum$vot==3 ,]$label <- "TL"
-stops_sum[stops_sum$f0 == 4 & stops_sum$vot==4 ,]$label <- "AL"
+stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$label <- "TL"
+stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$label <- "AL"
 
 #########
 # PLOTS #
@@ -171,7 +172,7 @@ stops_sum[stops_sum$f0 == 4 & stops_sum$vot==4 ,]$label <- "AL"
 
 # LENIS, continuous, with %
 
-g.lenis <- ggplot(stops_sum, aes(x = vot, f0)) +
+g.lenis <- ggplot(stops_mean, aes(x = vot, f0)) +
   geom_tile(aes(fill = lenis * 100)) +
   geom_text(aes(label = round(lenis * 100, 1))) +
   scale_fill_continuous(low = "white", high = "pink", name = "lenis %", 
@@ -184,7 +185,7 @@ g.lenis <- ggplot(stops_sum, aes(x = vot, f0)) +
 g.lenis
 
 ggsave(
-  "lenis.pdf",
+  "../graphs/lenis.pdf",
   plot = g.lenis,
   device = "pdf",
   scale = 1,
@@ -193,7 +194,7 @@ ggsave(
 
 # TENSE, continuous, with %
 
-g.tense <- ggplot(stops_sum, aes(vot, f0)) +
+g.tense <- ggplot(stops_mean, aes(vot, f0)) +
   geom_tile(aes(fill = tense * 100)) +
   geom_text(aes(label = round(tense * 100, 1))) +
   scale_fill_continuous(low = "white", high = "greenyellow", name = "tense %") +
@@ -204,7 +205,7 @@ g.tense <- ggplot(stops_sum, aes(vot, f0)) +
 g.tense
 
 ggsave(
-  "tense.pdf",
+  "../graphs/tense.pdf",
   plot = g.tense,
   device = "pdf",
   scale = 1,
@@ -213,7 +214,7 @@ ggsave(
 
 # ASP, continuous, with %
 
-g.asp <- ggplot(stops_sum, aes(x = vot, f0)) +
+g.asp <- ggplot(stops_mean, aes(x = vot, f0)) +
   geom_tile(aes(fill = asp * 100)) +
   geom_text(aes(label = round(asp * 100, 1))) +
   scale_fill_continuous(low = "white", high = "cyan", name = "aspirated %") +
@@ -224,7 +225,7 @@ g.asp <- ggplot(stops_sum, aes(x = vot, f0)) +
 g.asp
 
 ggsave(
-  "asp.pdf",
+  "../graphs/asp.pdf",
   plot = g.asp,
   device = "pdf",
   scale = 1,
@@ -233,7 +234,7 @@ ggsave(
 
 # OVERALL, continuous, with name
 
-g.overall <- ggplot(stops_sum, aes(x = vot, f0)) +
+g.overall <- ggplot(stops_mean, aes(x = vot, f0)) +
   geom_tile(aes(fill = predominant_num * 100)) +
   geom_text(aes(label = label)) +
   scale_fill_continuous(low = "white", high = "slategray", name = "Predominant category %", 
@@ -247,7 +248,7 @@ g.overall <- ggplot(stops_sum, aes(x = vot, f0)) +
 g.overall
 
 ggsave(
-  "overall.pdf",
+  "../graphs/overall.pdf",
   plot = g.overall,
   device = "pdf",
   scale = 1,
@@ -256,8 +257,8 @@ ggsave(
 
 # THREE, continuous, with name + %
 
-g.three <- ggplot(stops_sum, aes(vot, f0)) +
-  geom_tile(aes(fill = I(rgb(1 - stops_sum$asp, 1 - stops_sum$lenis, 1 - stops_sum$tense))))+
+g.three <- ggplot(stops_mean, aes(vot, f0)) +
+  geom_tile(aes(fill = I(rgb(1 - stops_mean$asp, 1 - stops_mean$lenis, 1 - stops_mean$tense))))+
   #               color = c("cyan", "yellow", "magenta"))) +
   # scale_color_manual(values = c("cyan", "yellow", "magenta")) +
   geom_text(aes(label =  paste(label, as.character(round(predominant_num * 100, 1))))) +
@@ -270,7 +271,7 @@ g.three <- ggplot(stops_sum, aes(vot, f0)) +
 g.three
 
 ggsave(
-  "three.pdf",
+  "../graphs/three.pdf",
   plot = g.three,
   device = "pdf",
   scale = 1,
@@ -369,4 +370,5 @@ summary(m.lenis1)
 summary(m.tense5)
 
 ### save df as csv file ###
-write.csv(stops, file="stops.csv")
+write.csv(stops, file="../../../data/perception/stops.csv")
+write.csv(stops_mean, file="../../../data/perception/stops_mean.csv")
