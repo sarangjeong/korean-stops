@@ -1,3 +1,114 @@
+function make_trial_slide(set_index) {
+  // main experiment, block 1
+  return slide({
+    name: "trial",
+    present: _.shuffle(exp.stimuli[exp.trial_poa[set_index]]),
+    present_handle : function(stim) {
+
+      // unselect all radio buttons (Leyla)
+      $('#lenis').empty()
+      $('#tense').empty()
+      $('#asp').empty()
+
+      // store stimulus data
+      this.stim = stim;
+
+      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
+
+      // for option 1 (lenis)
+      $('#lenis').append(
+            $('<input>').prop({
+                type: 'radio',
+                id: this.stim.poa + "lenis",
+                value: "lenis",
+                name: "word"
+            })
+        ).append(
+            $('<label>').prop({
+                for: this.stim.poa + "lenis"
+            }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
+
+      // for option 2 (tense)
+      $('#tense').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "tense",
+            value: "tense",
+            name: "word"
+        })
+      ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "tense"
+          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
+
+      // for option 3 (aspirated)
+      $('#asp').append(
+        $('<input>').prop({
+            type: 'radio',
+            id: this.stim.poa + "asp",
+            value: "asp",
+            name: "word"
+        })
+       ).append(
+        $('<label>').prop({
+            for: this.stim.poa + "asp"
+          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
+
+      var aud = document.getElementById("stim");
+      aud.src = "audio/"+stim.audio;
+      console.log("audio source:",aud.src)
+      aud.load();
+      // aud.play();
+      setTimeout(function(){ 
+        aud.play(); 
+        }, 300)
+
+
+      $(".err").hide();
+
+    },
+
+    // handle click on "Continue" button
+    button: function() {
+      this.radio = $("input[name='word']:checked").val();
+      // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
+      if (this.radio) {
+        this.log_responses();
+        // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
+        _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
+      } else {
+        $('.err').show();
+      }
+    },
+
+    // save response
+    log_responses: function() {
+      exp.data_trials.push({
+        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
+        "id": this.stim.audio,
+        "response": this.radio,
+        "word": this.stim.word,
+        "poa": this.stim.poa,
+        "vot": this.stim.vot,
+        "f0": this.stim.f0
+      });
+    },
+  });
+}
+
+function make_break_slide() {
+  return slide({
+    name: "break",
+    start: function() {
+      exp.trial_timestamp.push(Date.now())
+    },
+    button: function() {
+      exp.trial_timestamp.push(Date.now())
+      exp.go(); //use exp.go() if and only if there is no "present" data.
+    },
+  });
+}
+
 function make_slides(f) {
   var slides = {};
 
@@ -254,336 +365,23 @@ function make_slides(f) {
     start: function() {
     },
     button: function() {
-      exp.trial1T = Date.now();
+      exp.trial_timestamp = []
+      exp.trial_timestamp.push(Date.now())
       exp.go(); //use exp.go() if and only if there is no "present" data.
     },
   });
 
-  // main experiment, block 1
-  slides.trial1 = slide({
-    name: "trial1",
-    present: _.shuffle(exp.stimuli[exp.trial_poa[0]]),
-    present_handle : function(stim) {
-
-      // unselect all radio buttons (Leyla)
-      $('#lenis1').empty()
-      $('#tense1').empty()
-      $('#asp1').empty()
-
-      // store stimulus data
-      this.stim = stim;
-
-      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
-
-      // for option 1 (lenis)
-      $('#lenis1').append(
-            $('<input>').prop({
-                type: 'radio',
-                id: this.stim.poa + "lenis",
-                value: "lenis",
-                name: "word"
-            })
-        ).append(
-            $('<label>').prop({
-                for: this.stim.poa + "lenis"
-            }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
-
-      // for option 2 (tense)
-      $('#tense1').append(
-        $('<input>').prop({
-            type: 'radio',
-            id: this.stim.poa + "tense",
-            value: "tense",
-            name: "word"
-        })
-      ).append(
-        $('<label>').prop({
-            for: this.stim.poa + "tense"
-          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
-
-      // for option 3 (aspirated)
-      $('#asp1').append(
-        $('<input>').prop({
-            type: 'radio',
-            id: this.stim.poa + "asp",
-            value: "asp",
-            name: "word"
-        })
-       ).append(
-        $('<label>').prop({
-            for: this.stim.poa + "asp"
-          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
-
-      var aud = document.getElementById("stim1");
-      aud.src = "audio/"+stim.audio;
-      console.log("audio source:",aud.src)
-      aud.load();
-      // aud.play();
-      setTimeout(function(){ 
-        aud.play(); 
-        }, 300)
-
-
-      $(".err").hide();
-
-    },
-
-    // handle click on "Continue" button
-    button: function() {
-      this.radio = $("input[name='word']:checked").val();
-      // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
-      if (this.radio) {
-        this.log_responses();
-        // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
-        _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
-      } else {
-        $('.err').show();
-      }
-    },
-
-    // save response
-    log_responses: function() {
-      exp.data_trials.push({
-        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
-        "id": this.stim.audio,
-        "response": this.radio,
-        "word": this.stim.word,
-        "poa": this.stim.poa,
-        "vot": this.stim.vot,
-        "f0": this.stim.f0
-      });
-    },
-  });
-
-  // set up slide for break
-  // TODO : tell them how many blocks are left
-  slides.break1 = slide({
-    name: "break1",
-    start: function() {
-      exp.trial1T = Date.now() - exp.trial1T;
-    },
-    button: function() {
-      exp.trial2T = Date.now();
-      exp.go(); //use exp.go() if and only if there is no "present" data.
-    },
-  });
-
-  // main experiment, block 2
-  slides.trial2 = slide({
-    name: "trial2",
-
-    present: _.shuffle(exp.stimuli[exp.trial_poa[1]]),
-    present_handle : function(stim) {
-
-      // unselect all radio buttons (Leyla)
-      $('#lenis2').empty()
-      $('#tense2').empty()
-      $('#asp2').empty()
-
-      // store stimulus data
-      this.stim = stim;
-
-      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
-
-      // for option 1 (lenis)
-      $('#lenis2').append(
-            $('<input>').prop({
-                type: 'radio',
-                id: this.stim.poa + "lenis",
-                value: "lenis",
-                name: "word"
-            })
-        ).append(
-            $('<label>').prop({
-                for: this.stim.poa + "lenis"
-            }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
-
-      // for option 2 (tense)
-      $('#tense2').append(
-        $('<input>').prop({
-            type: 'radio',
-            id: this.stim.poa + "tense",
-            value: "tense",
-            name: "word"
-        })
-      ).append(
-        $('<label>').prop({
-            for: this.stim.poa + "tense"
-          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
-
-      // for option 3 (aspirated)
-      $('#asp2').append(
-        $('<input>').prop({
-            type: 'radio',
-            id: this.stim.poa + "asp",
-            value: "asp",
-            name: "word"
-        })
-      ).append(
-        $('<label>').prop({
-            for: this.stim.poa + "asp"
-          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
-          
-      var aud = document.getElementById("stim2");
-      aud.src = "audio/"+stim.audio;
-      console.log("audio source:",aud.src)
-      aud.load();
-      // aud.play();
-      setTimeout(function(){ 
-        aud.play(); 
-        }, 300)
-
-      $(".err").hide();
-
-    },
-
-    // handle click on "Continue" button
-    button: function() {
-      this.radio = $("input[name='word']:checked").val();
-      // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
-      if (this.radio) {
-        this.log_responses();
-        // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
-        _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
-      } else {
-        $('.err').show();
-      }
-    },
-
-    // save response
-    log_responses: function() {
-      exp.data_trials.push({
-        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
-        "id": this.stim.audio,
-        "response": this.radio,
-        "word": this.stim.word,
-        "poa": this.stim.poa,
-        "vot": this.stim.vot,
-        "f0": this.stim.f0
-      });
-    },
-  });
-
-  // set up slide for break
-  // TODO : tell them how many blocks are left
-  slides.break2 = slide({
-    name: "break2",
-    start: function() {
-      exp.trial2T = Date.now() - exp.trial2T;
-    },
-    button: function() {
-      exp.trial3T = Date.now();
-      exp.go(); //use exp.go() if and only if there is no "present" data.
-    },
-  });
-
-  // main experiment, block 3
-  slides.trial3 = slide({
-    name: "trial3",
-
-    present: _.shuffle(exp.stimuli[exp.trial_poa[2]]),
-    present_handle : function(stim) {
-
-      // unselect all radio buttons (Leyla)
-      $('#lenis3').empty()
-      $('#tense3').empty()
-      $('#asp3').empty()
-
-      // store stimulus data
-      this.stim = stim;
-
-      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
-
-      // for option 1 (lenis)
-      $('#lenis3').append(
-            $('<input>').prop({
-                type: 'radio',
-                id: this.stim.poa + "lenis",
-                value: "lenis",
-                name: "word"
-            })
-        ).append(
-            $('<label>').prop({
-                for: this.stim.poa + "lenis"
-            }).html(/*"1. " + */poa_laryngeal[this.stim.poa][0]))
-
-      // for option 2 (tense)
-      $('#tense3').append(
-        $('<input>').prop({
-            type: 'radio',
-            id: this.stim.poa + "tense",
-            value: "tense",
-            name: "word"
-        })
-      ).append(
-        $('<label>').prop({
-            for: this.stim.poa + "tense"
-          }).html(/*"2. " + */poa_laryngeal[this.stim.poa][1]))
-
-      // for option 3 (aspirated)
-      $('#asp3').append(
-        $('<input>').prop({
-            type: 'radio',
-            id: this.stim.poa + "asp",
-            value: "asp",
-            name: "word"
-        })
-      ).append(
-        $('<label>').prop({
-            for: this.stim.poa + "asp"
-          }).html(/*"3. " + */poa_laryngeal[this.stim.poa][2]))
-
-      var aud = document.getElementById("stim3");
-      aud.src = "audio/"+stim.audio;
-      console.log("audio source:",aud.src)
-      aud.load();
-      // aud.play();
-      setTimeout(function(){ 
-        aud.play(); 
-        }, 300)
-
-      $(".err").hide();
-
-    },
-
-    // handle click on "Continue" button
-    button: function() {
-      this.radio = $("input[name='word']:checked").val();
-      // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
-      if (this.radio) {
-        this.log_responses();
-        // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
-        _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
-      } else {
-        $('.err').show();
-      }
-    },
-
-    // save response
-    log_responses: function() {
-      exp.data_trials.push({
-        "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
-        "id": this.stim.audio,
-        "response": this.radio,
-        "word": this.stim.word,
-        "poa": this.stim.poa,
-        "vot": this.stim.vot,
-        "f0": this.stim.f0
-      });
-    },
-  });
-
-
-
-
-
-
+  for (let i = 1; i < exp.number_of_trial_set; i++) {
+    slides['trial' + i.toString()] = make_trial_slide(i-1);
+    slides['break' + i.toString()] = make_break_slide();
+  }
+  slides['trial' + exp.number_of_trial_set.toString()] = make_trial_slide(exp.number_of_trial_set-1);
   
   // slide to collect subject information
   slides.subj_info = slide({
     name: "subj_info",
     start: function() {
-      exp.trial3T = Date.now() - exp.trial3T;
+      exp.trial_timestamp.push(Date.now())
     },
     submit: function(e) {
       exp.subj_data = {
@@ -628,10 +426,12 @@ function make_slides(f) {
         "condition": exp.condition,
         "subject_information": exp.subj_data,
         "time_in_minutes": (Date.now() - exp.startT) / 60000,
-        "triral_1_time_in_minutes": exp.trial1T / 60000,
-        "triral_2_time_in_minutes": exp.trial2T / 60000,
-        "triral_3_time_in_minutes": exp.trial3T / 60000,
       };
+
+      for (let i = 0; i < exp.trial_timestamp.length-1; i+=2) {
+        exp.data['trial_' + (Math.floor(i/2)+1).toString() + '_time_in_minutes'] = (exp.trial_timestamp[i+1] - exp.trial_timestamp[i]) / 60000;
+      }
+
       proliferate.submit(exp.data); // audio check and practice data???
     }
   });
@@ -668,6 +468,8 @@ function init() {
     screenUW: exp.width
   };
 
+  exp.number_of_trial_set = exp.trial_poa.length
+
   //blocks of the experiment:
   exp.structure = [
     "i0",
@@ -676,15 +478,15 @@ function init() {
     "check3",
     "startPractice",
     "practice",
-    "startExp",
-    "trial1", // 방 빵 팡
-    "break1",
-    "trial2", // 간 깐 칸
-    "break2",
-    "trial3", // 담 땀 탐
-    "subj_info",
-    "thanks"
-  ];
+    "startExp"];
+
+  for (let i = 1; i < exp.number_of_trial_set; i++) {
+    exp.structure.push("trial" + i.toString());
+    exp.structure.push("break" + i.toString());
+  }
+  exp.structure.push("trial" + exp.number_of_trial_set.toString());
+  exp.structure.push("subj_info")
+  exp.structure.push("thanks")
 
   exp.data_trials = [];
 
