@@ -175,7 +175,7 @@ stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$label <- "AL"
 g.lenis <- ggplot(stops_mean, aes(x = vot, f0)) +
   geom_tile(aes(fill = lenis * 100)) +
   geom_text(aes(label = round(lenis * 100, 1))) +
-  scale_fill_continuous(low = "white", high = "pink", name = "lenis %", 
+  scale_fill_continuous(low = "white", high = "magenta", name = "lenis %", 
                         limits = c(0, 100), 
                         breaks = seq(0, 100, by=25)) +
   labs(x = "VOT", y = "F0",
@@ -185,10 +185,13 @@ g.lenis <- ggplot(stops_mean, aes(x = vot, f0)) +
 g.lenis
 
 ggsave(
-  "../graphs/lenis.pdf",
+  "../graphs/lenis.png",
+#  "../graphs/lenis.pdf",
   plot = g.lenis,
-  device = "pdf",
+#  device = "pdf",
   scale = 1,
+  width = 10,
+  height = 6,
   dpi = "retina",
 )
 
@@ -197,7 +200,7 @@ ggsave(
 g.tense <- ggplot(stops_mean, aes(vot, f0)) +
   geom_tile(aes(fill = tense * 100)) +
   geom_text(aes(label = round(tense * 100, 1))) +
-  scale_fill_continuous(low = "white", high = "greenyellow", name = "tense %") +
+  scale_fill_continuous(low = "white", high = "yellow", name = "tense %") +
   labs(x = "VOT", y = "F0",
        title ="Tense responses across F0 and VOT continua") +
   theme_minimal() +
@@ -205,10 +208,13 @@ g.tense <- ggplot(stops_mean, aes(vot, f0)) +
 g.tense
 
 ggsave(
-  "../graphs/tense.pdf",
+  "../graphs/tense.png",
+#  "../graphs/tense.pdf",
   plot = g.tense,
-  device = "pdf",
+#  device = "pdf",
   scale = 1,
+  width = 10,
+  height = 6,
   dpi = "retina",
 )
 
@@ -225,9 +231,12 @@ g.asp <- ggplot(stops_mean, aes(x = vot, f0)) +
 g.asp
 
 ggsave(
-  "../graphs/asp.pdf",
+  "../graphs/asp_test.png",
+#  "../graphs/asp_test.pdf",
   plot = g.asp,
-  device = "pdf",
+#  device = "pdf",
+  width = 10,
+  height = 6,
   scale = 1,
   dpi = "retina",
 )
@@ -271,12 +280,16 @@ g.three <- ggplot(stops_mean, aes(vot, f0)) +
 g.three
 
 ggsave(
-  "../graphs/three.pdf",
+  "../graphs/three_test.png",
+  #    "../graphs/three_test.pdf",
   plot = g.three,
-  device = "pdf",
+#  device = "pdf",
+  width = 10,
+  height = 6,
   scale = 1,
   dpi = "retina",
 )
+
 
 ##########
 # models #
