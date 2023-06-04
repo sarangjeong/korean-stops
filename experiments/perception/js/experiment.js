@@ -573,6 +573,12 @@ function make_slides(f) {
     },
   });
 
+
+
+
+
+
+  
   // slide to collect subject information
   slides.subj_info = slide({
     name: "subj_info",
@@ -645,7 +651,7 @@ function init() {
   exp.check_fails = 0;
   
   // determine which poa (방빵팡/담땀탐/간깐칸) to put in each block
-  exp.trial_poa = ['lab', 'lab', 'lab'] // _.shuffle(Object.keys(stimuli)); // shuffle poas of trial
+  exp.trial_poa = _.shuffle(['lab', 'lab', 'lab', 'cor', 'cor', 'cor', 'dor', 'dor', 'dor']) // shuffle poas of trial
 
   console.log(exp.stimuli) //I added this during tutorial
   exp.n_trials = exp.stimuli.length;
