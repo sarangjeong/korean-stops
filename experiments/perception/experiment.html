@@ -273,14 +273,12 @@
               그외
             </option>
           </select>
-        </p>
-        <p>
-          만 나이: <input type="text" id="age">
+          만 나이: <input type="number" id="age">
         </p>
         <p>
           모국어 방언: <input type="text" id="language">
         </p><label>어릴 적 집에서 사용했던 방언(들) <br>
-        예: 서울말, 미국 서부 영어</label>
+        예: 서울말, 강원도 사투리</label>
         <p>
           주양육자 방언: <input type="text" id="language_parents">
         </p><label>어릴 적 주양육자(들)이 사용했던 방언(들) <br>
@@ -288,6 +286,18 @@
         <p>
           그외에 할 줄 아는 언어와 구사 수준: <input type="text" id="language_other">
         </p><label>예: 영어(고급), 중국어(중급), 일본어(초급)</label>
+        <p>대화 빈도: 본인의 평소 대화에서 상대방 연령의 비중<br>
+          <label>합이 100이 되도록 답변해 주세요.<br>
+          예: 10대 이하: 0, 20대: 50, 30대: 10, 40대: 10, 50대: 30, 60대 이상: 0</label><br>
+        <!--TODO: indent sub-questions; rephrase; change input type; 
+          contrain to sum up to 100; log responses-->
+          10대 이하: <input type="number" id="interaction_10">
+          20대: <input type="number" id="interaction_20">
+          30대: <input type="number" id="interaction_30"><br>
+          40대: <input type="number" id="interaction_40">
+          50대: <input type="number" id="interaction_50">
+          60대 이상: <input type="number" id="interaction_60">
+        </p>
         <p>
           청각 장애 및 청각 관련 병력
         <select id="impairment">
@@ -310,10 +320,22 @@
         <p>
           (선택) 이어폰/헤드셋 제품명 또는 모델명: <input type="text" id="equipment">
         </p>
-        <p>
+        <p> <!--TODO: change to dropdown?-->
           (선택) 나는 지시사항을 모두 읽고 단어를 듣고 고를 때 주의를 기울였다
-        </p><label><input type="radio" name="assess" value="Yes">그렇다</label> <label><input type="radio" name="assess" value="No">아니다</label> <label><input type="radio" name="assess" value="Confused">잘 모르겠다</label>
-        <p>
+        <select id="assess">
+          <option value="-1">
+          </option>
+          <option value="Yes">
+            그렇다
+          </option>
+          <option value="No">
+            아니다
+          </option>
+          <option value="Confused">
+            헷갈렸다
+          </option>
+        </select> 
+        </p>
         <p>
           (선택) 참가비에 대한 평가
         <select id="fairprice">
@@ -326,8 +348,6 @@
             적절했다
           </option>
         </select>
-        </p>
-        <p>
           (선택) 실험에 대한 평가
           <select id="enjoyment">
           <option value="-1">
@@ -346,7 +366,7 @@
         <p>
           (선택) 이 실험에 대해 하고 싶은 말씀이 있으시다면 알려주세요.
         </p>
-        <textarea id="comments" rows="3" cols="50"></textarea><br>
+        <textarea id="comments" rows="2" cols="50"></textarea><br>
         <button onclick="_s.submit()">제출</button>
       </div>
       <div class="err">
