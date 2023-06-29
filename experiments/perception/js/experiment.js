@@ -9,6 +9,7 @@ function make_trial_slide(set_index) {
       $('#lenis').empty()
       $('#tense').empty()
       $('#asp').empty()
+      $(".err").hide()
 
       // store stimulus data
       this.stim = stim;
@@ -280,6 +281,7 @@ function make_slides(f) {
       $('#lenis_p').empty()
       $('#tense_p').empty()
       $('#asp_p').empty()
+      $(".err").hide()
 
       // store stimulus data
       this.stim = stim;
@@ -501,24 +503,33 @@ function init() {
 
   // use keyboard to chose options and go next page
   // TODO : fix bug error message does not go away when using keyboard
-  /*
-  document.addEventListener('keydown', function(e){
+  document.addEventListener('keyup', function(e){
     const keyCode = e.key;
-      if (['practice', 'trial1', 'trial2', 'trial3'].includes(exp.structure[exp.slideIndex])) {
-        if(keyCode == '1')
-          $("input[name='word'][value='lenis']").prop("checked", true);
-        else if(keyCode == '2')
+      num_radio_elements = $("input[name='word']").length
+      trials = []
+      for (let i = 1; i < exp.number_of_trial_set; i++) {
+        trials.push("trial" + i.toString());
+      }
+
+      if((['practice'] + trials).includes(exp.structure[exp.slideIndex])) {
+        if(keyCode == '1') {
+          $("input[value='lenis']").prop("checked", true);
+        }
+        else if(keyCode == '2') {
           $("input[name='word'][value='tense']").prop("checked", true);
-        else if(keyCode == '3')
+        }
+        else if(keyCode == '3') {
           $("input[name='word'][value='asp']").prop("checked", true);
-        else if (keyCode == 'Enter')
+        }
+        else if (keyCode == 'Enter') {
           exp.slides[exp.structure[exp.slideIndex]].button();
+        }
         // press any key, then it shows in the console the data collected so far
-        else if (keyCode == 'p')
+        else if (keyCode == 'p') {
           console.log(exp.data_trials);
+        }
       }
   });
-  */
 
   $("#start_button").click(function() {
     exp.go();
