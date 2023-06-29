@@ -71,10 +71,11 @@ function make_trial_slide(set_index) {
 
     // handle click on "Continue" button
     button: function() {
-      this.radio = $("input[name='word']:checked").val();
+      this.radio = $("input[name='word']:checked");
       // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
-      if (this.radio) {
+      if (this.radio.val()) {
         this.log_responses();
+        this.radio.prop("checked", false)
         // exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
         _stream.apply(this); //use _stream.apply(this) if there is a list of "present" stimuli to rotate through
       } else {
@@ -339,9 +340,10 @@ function make_slides(f) {
     },
 
     button: function() {
-      this.radio = $("input[name='word']:checked").val();
-      if (this.radio) {
+      this.radio = $("input[name='word']:checked");
+      if (this.radio.val()) {
         this.log_responses();
+        this.radio.prop("checked", false)
         _stream.apply(this);
       } else {
         $('.err').show();
