@@ -143,7 +143,7 @@ function make_slides(f) {
           $('.err').hide();
           $('.failure').show();
           setTimeout(function(){
-            close();
+            window.close();
           },5000);
         }
         else {
