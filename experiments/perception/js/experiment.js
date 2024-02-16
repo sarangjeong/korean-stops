@@ -88,7 +88,7 @@ function make_trial_slide(set_index) {
       exp.data_trials.push({
         "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
         "id": this.stim.audio,
-        "response": this.radio,
+        "response": this.radio.val(),
         "word": this.stim.word,
         "poa": this.stim.poa,
         "vot": this.stim.vot,
@@ -354,7 +354,7 @@ function make_slides(f) {
       exp.data_trials.push({
         "slide_number_in_experiment": exp.phase,
         "id": "practice",
-        "response": this.radio,
+        "response": this.radio.val(),
         "word": this.stim.word,
         "poa": this.stim.poa,
         "vot": this.stim.vot,
