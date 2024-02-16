@@ -94,6 +94,7 @@ function make_trial_slide(set_index) {
         "vot": this.stim.vot,
         "f0": this.stim.f0
       });
+      console.log(exp.data_trials)
     },
   });
 }
@@ -375,7 +376,7 @@ function make_slides(f) {
     },
   });
 
-  for (let i = 1; i <= exp.number_of_trial_set; i++) {
+  for (let i = 1; i < exp.number_of_trial_set; i++) {
     slides['trial' + i.toString()] = make_trial_slide(i-1);
     slides['break' + i.toString()] = make_break_slide();
   }
@@ -501,7 +502,7 @@ function init() {
     "practice",
     "startExp"];
 
-  for (let i = 1; i <= exp.number_of_trial_set; i++) {
+  for (let i = 1; i < exp.number_of_trial_set; i++) {
     exp.structure.push("trial" + i.toString());
     exp.structure.push("break" + i.toString());
   }
