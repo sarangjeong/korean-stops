@@ -24,9 +24,14 @@ for (const [word, poa] of Object.entries(word_poa)) {
   }
 }
 
-// TODO : change practice (include other poa too)
+// DONE : change practice to include all poa
 var practice_stims = [];
-var index_list = [9, 58, 23, 63, 14, 59, 11, 26, 17, 20];
-for (const i of index_list) {
-  practice_stims.push(trial_stims["lab"][i])
+var index_list = [9, 58, 23, 63, 14, 59, 11, 26, 17, 20]; // random numbers from 1~64
+var poa_list = ['cor', 'cor', 'cor', 'dor', 'dor', 'lab', 'dor', 'cor', 'lab', 'dor'] // random poa
+var length = index_list.length;
+
+for (var i = 0; i < length; i++) {
+  var index = index_list[i];
+  var poa = poa_list[i];
+  practice_stims.push(trial_stims[poa][index]);
 }
