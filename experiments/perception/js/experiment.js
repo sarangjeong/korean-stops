@@ -14,8 +14,8 @@ function make_trial_slide(set_index) {
       // store stimulus data
       this.stim = stim;
 
-      // TODO : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 방빵팡 / 담땀탐 / 간깐칸
-
+      // todo : lenis, tense, aps radios --> depending on the stim's poa, change their "labels" into 비삐피/기끼키/피삐피
+      // --> I think this is done in stimuli.js ...?
       // for option 1 (lenis)
       $('#lenis').append(
             $('<input>').prop({
@@ -367,15 +367,15 @@ function make_slides(f) {
   slides.startExp = slide({
     name: "startExp",
     start: function() {
+      exp.trial_timestamp = []
     },
     button: function() {
-      exp.trial_timestamp = []
       exp.trial_timestamp.push(Date.now())
       exp.go(); //use exp.go() if and only if there is no "present" data.
     },
   });
 
-  for (let i = 1; i < exp.number_of_trial_set; i++) {
+  for (let i = 1; i <= exp.number_of_trial_set; i++) {
     slides['trial' + i.toString()] = make_trial_slide(i-1);
     slides['break' + i.toString()] = make_break_slide();
   }
@@ -385,15 +385,24 @@ function make_slides(f) {
   slides.subj_info = slide({
     name: "subj_info",
     start: function() {
-      exp.trial_timestamp.push(Date.now())
+      exp.trial_timestamp.push(Date.now());
+      $(".err").hide();
+      $(".err_age").hide();
     },
     submit: function(e) {
       exp.subj_data = {
         language: $("#language").val(),
         language_parents: $("#language_parents").val(),
-        language_other: $("#language_other").val(),
+        language_other: ($("#language_other").val()),
+        interaction_10: Number($("#interaction_10").val()),
+        interaction_20: Number($("#interaction_20").val()),
+        interaction_30: Number($("#interaction_30").val()),
+        interaction_40: Number($("#interaction_40").val()),
+        interaction_50: Number($("#interaction_50").val()),
+        interaction_60: Number($("#interaction_60").val()),
         impairment: $("#impairment").val(),
-        equipment: $("#equipment").val(),
+        equipment_type: $("#equipment_type").val(),
+        equipment_model: $("#equipment_model").val(),
         enjoyment: $("#enjoyment").val(),
         assess: $('input[name="assess"]:checked').val(),
         age: $("#age").val(),
@@ -402,16 +411,24 @@ function make_slides(f) {
         comments: $("#comments").val()
       };
       
-      $(".err").hide();
-
       if (
         exp.subj_data["language"] == "" || 
         exp.subj_data["language_parents"] == "" || 
         exp.subj_data["language_other"] == "" || 
+        (exp.subj_data["interaction_10"] == "" && 
+        exp.subj_data["interaction_20"] == "" && 
+        exp.subj_data["interaction_30"] == "" && 
+        exp.subj_data["interaction_40"] == "" && 
+        exp.subj_data["interaction_50"] == "" && 
+        exp.subj_data["interaction_60"] == "") || 
         exp.subj_data["impairment"] == "-1" ||
         exp.subj_data["gender"] == "" || 
         exp.subj_data["age"] == "") {
-        $('.err').show();
+        $(".err").show();
+        $(".err_age").hide();
+      } else if ( (exp.subj_data["interaction_10"] + exp.subj_data["interaction_20"] + exp.subj_data["interaction_30"] + exp.subj_data["interaction_40"] + exp.subj_data["interaction_50"] + exp.subj_data["interaction_60"]) != 100 ) {
+        $(".err_age").show();
+        $(".err").hide();
       } else {
         exp.go(); //use exp.go() if and only if there is no "present"ed data, ie no list of stimuli.
       }
@@ -447,6 +464,7 @@ function make_slides(f) {
 function init() {
 
   exp.trials = [];
+  exp.response = true // to make exp.go() work with argument (num_of_slides_to_skip); see exp-V2.js
   exp.catch_trials = [];
   var stimuli = trial_stims;
 
@@ -462,7 +480,6 @@ function init() {
 
   // exp.condition = _.sample(["context", "no-context"]); //can randomize between subjects conditions here
 
-  // TODO : record speaker or earphone; or ask about it in questionnaire
   exp.system = {
     Browser: BrowserDetect.browser,
     OS: BrowserDetect.OS,
@@ -484,7 +501,7 @@ function init() {
     "practice",
     "startExp"];
 
-  for (let i = 1; i < exp.number_of_trial_set; i++) {
+  for (let i = 1; i <= exp.number_of_trial_set; i++) {
     exp.structure.push("trial" + i.toString());
     exp.structure.push("break" + i.toString());
   }
@@ -503,13 +520,12 @@ function init() {
 
   $('.slide').hide(); //hide everything
 
-  // use keyboard to chose options and go next page
-  // TODO : fix bug error message does not go away when using keyboard
+  // use keyboard to choose options and go next page
   document.addEventListener('keyup', function(e){
     const keyCode = e.key;
       num_radio_elements = $("input[name='word']").length
       trials = []
-      for (let i = 1; i < exp.number_of_trial_set; i++) {
+      for (let i = 1; i <= exp.number_of_trial_set; i++) {
         trials.push("trial" + i.toString());
       }
 
