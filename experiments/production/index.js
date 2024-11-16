@@ -1,7 +1,8 @@
 let timeline = [
     consentFormSlide,
     overallInstructionSlide,
-    ...createSession(1),
+    // ...createSession(1, false),
+    thanksSlide
     // ...createSession(2),
     // ...createSession(3)
 ]; // Replaced experimentInstruction with overallInstruction

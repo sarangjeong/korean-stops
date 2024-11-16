@@ -11,7 +11,7 @@ function convertNumberToKoreanOrdinal(num) {
 }
 
 // Function to create a session block
-function createSession(sessionNumber) {
+function createSession(sessionNumber, includeSessionEnd = true) {
     // Session instruction
     var sessionInstruction = {
         type: "html-button-response",
@@ -88,5 +88,10 @@ function createSession(sessionNumber) {
     };
 
     // Return the session as an array to be added to the timeline
-    return [sessionInstruction, ...sessionTrials, sessionEnd];
+    var sessionArray = [sessionInstruction, ...sessionTrials];
+    if (includeSessionEnd) {
+        sessionArray.push(sessionEnd);
+    }
+    return sessionArray;
 }
+
