@@ -53,7 +53,24 @@ function createSession(sessionNumber) {
         return {
             type: "html-button-response",
             stimulus: `<h1 style="font-size: 10em;">${word}</h1>`,
-            choices: ['다음']
+            choices: ['다음'],
+            button_html: '<button class="delayed-button" style="font-size: 24px;">%choice%</button>', // Inline CSS for button size
+            on_load: function() {
+                var button = document.querySelector('.delayed-button');
+                // Style the button as disabled
+                button.style.backgroundColor = 'gray'; // Light gray background
+                button.style.opacity = '0.5'; // Reduced opacity
+                button.style.cursor = 'not-allowed'; // Cursor change to indicate non-interactivity
+                button.disabled = true; // Button is initially disabled
+                
+                // After 2 seconds, enable the button and reset its style
+                setTimeout(function() {
+                button.style.backgroundColor = ''; // Resets to default color
+                button.style.opacity = '1'; // Resets opacity to full
+                button.style.cursor = 'pointer'; // Cursor returns to pointer on hover
+                button.disabled = false; // Enables the button
+                }, 2000);
+            }
         }
     })
 
