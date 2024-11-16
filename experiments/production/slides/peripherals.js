@@ -56,7 +56,7 @@ var overallInstructionSlide = {
         <div>
             <h1>실험 1</h1>
             <p>이 실험은 한국어 단어를 소리내어 읽는 실험입니다.<br>
-            총 소요 시간은 약 10분이며,<br>
+            총 소요 시간은 약 15분이며,<br>
             3개의 세션으로 이루어져 있습니다.<br>
             한 세션이 끝날 때마다 휴식 시간을 가지실 수 있습니다.</p>
         </div>`,
@@ -66,13 +66,13 @@ var overallInstructionSlide = {
 var thanksSlide = {
     type: "html-button-response",
     stimulus: `
-        <div style="text-align: left;">
+        <div">
             <h1>마지막 세션이 끝났습니다.</h1>
-            <p>녹음을 <strong>중지해 주세요</strong>.</p>
-            <p>실험 담당자에게 <strong>녹음 파일을 모두 보내주세요</strong>.</p>
+            <p>녹음을 중지해 주세요.</p>
+            <p>실험 담당자(정사랑, sarangj@stanford.edu)에게 녹음 파일을 모두 보내주세요.</p>
             <p>
-                녹음 파일 확인 후 즉시 <strong>참가비 일부(5,000원)</strong>과 <strong>다음 실험 링크</strong>를 보내드릴 예정입니다. 
-                <strong>두 번째 실험에 참가하신 뒤에 나머지 참가비(5,000원)</strong>가 입금됩니다.
+                녹음 파일 확인 후 즉시 참가비 일부(5,000원)과 다음 실험 링크를 보내드릴 예정입니다. 
+                두 번째 실험에 참가하신 뒤에 나머지 참가비(5,000원)가 입금됩니다.
             </p>
             <p>감사합니다!</p>
         </div>`,
