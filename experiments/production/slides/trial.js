@@ -24,11 +24,11 @@ function createSession(sessionNumber, includeSessionEnd = true) {
                 <li>실험을 시작하기 전에 <strong>주변의 소음을 차단</strong>해 주세요.</li>
                 <li>스마트폰에서 <strong>음성메모 녹음</strong>을 시작해 주세요. 녹음기를 입에서 약 <strong>10-20cm</strong> 거리에 두세요. (다른 녹음 장비가 있으실 경우 그것을 사용하셔도 좋습니다.)</li>
                 <li>단어를 보고 나서 소리내어 읽기 전 <strong>1초 정도 간격</strong>을 두세요.</li>
-                <li>단어를 읽은 뒤 <strong>1초 정도 간격</strong>을 두고 다음 슬라이드로 넘어가세요. 마우스를 좌클릭하거나 스페이스바를 누르면 다음 슬라이드로 넘어갑니다.</li>
+                <li>단어를 읽은 뒤 <strong>1초 정도 간격</strong>을 두고 다음 페이지로 넘어가세요. 마우스를 좌클릭하거나 스페이스바를 누르면 다음 페이지로 넘어갑니다.</li>
                 <li>단어를 <strong>나열하듯 쭉 읽지 마시고</strong>, 각 단어를 독립적으로 읽어 주세요.</li>
             </ol>
     
-            <p>준비가 되셨으면 다음 슬라이드로 넘어가 실험을 시작해 주세요.</p>
+            <p><strong>녹음이 되고 있는지 한 번 더 확인 후</strong>, "시작" 버튼을 눌러 실험을 시작해주세요.</p>
         </div>`,
         choices: ['시작']
     };
@@ -52,7 +52,7 @@ function createSession(sessionNumber, includeSessionEnd = true) {
         return {
             type: "html-button-response",
             stimulus: `<h1 style="font-size: 10em;">${word}</h1>`,
-            prompt: "<p>다음 버튼을 클릭하거나 스페이스바를 누르세요</p>",
+            prompt: "<p>단어를 소리내어 읽은 뒤, \"다음\" 버튼을 클릭하거나 스페이스바를 누르세요</p>",
             choices: ['다음'],
             button_html: '<button class="delayed-button" style="font-size: 24px;">%choice%</button>',
             on_load: function() {
