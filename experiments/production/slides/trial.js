@@ -35,18 +35,14 @@ function createSession(sessionNumber, includeSessionEnd = true) {
     
 
     // Session trial (customize this for each session as needed)
-    // const koreanWords = [
-    //     "각", "간", "곡", "공", "기", "김", "깍", "깐", "꼭", "꽁", "끼", "낙", "난", "날",
-    //     "남", "납", "낫", "녹", "논", "놈", "놋", "농", "님", "닥", "단", "독", "동", "디",
-    //     "딱", "딴", "똑", "똥", "띠", "막", "만", "말", "맘", "맛", "망", "목", "몸", "못",
-    //     "미", "박", "반", "복", "봉", "비", "빡", "빤", "뽁", "뽕", "삐", "속", "손", "솔",
-    //     "솜", "솥", "시", "씨", "악", "안", "알", "암", "앞", "옥", "옷", "이", "잣", "좀",
-    //     "짐", "착", "촉", "촌", "침", "칵", "칸", "콕", "키", "탁", "탄", "톡", "통", "티",
-    //     "팍", "판", "폭", "퐁", "피", "학", "혹", "혼", "힘", "끼", "기", "키", "삐", "비",
-    //     "피", "띠", "디", "티"
-    // ];
     const koreanWords = [
-        "각", "간"
+        "각", "간", "곡", "공", "기", "김", "깍", "깐", "꼭", "꽁", "끼", "낙", "난", "날",
+        "남", "납", "낫", "녹", "논", "놈", "놋", "농", "님", "닥", "단", "독", "동", "디",
+        "딱", "딴", "똑", "똥", "띠", "막", "만", "말", "맘", "맛", "망", "목", "몸", "못",
+        "미", "박", "반", "복", "봉", "비", "빡", "빤", "뽁", "뽕", "삐", "속", "손", "솔",
+        "솜", "솥", "시", "씨", "악", "안", "알", "암", "앞", "옥", "옷", "이", "잣", "좀",
+        "짐", "착", "촉", "촌", "침", "칵", "칸", "콕", "키", "탁", "탄", "톡", "통", "티",
+        "팍", "판", "폭", "퐁", "피", "학", "혹", "혼", "힘"
     ];
 
     // With sessionNumber being seed, shuffle koreanWords
@@ -56,26 +52,40 @@ function createSession(sessionNumber, includeSessionEnd = true) {
         return {
             type: "html-button-response",
             stimulus: `<h1 style="font-size: 10em;">${word}</h1>`,
+            prompt: "<p>다음 버튼을 클릭하거나 스페이스바를 누르세요</p>",
             choices: ['다음'],
-            button_html: '<button class="delayed-button" style="font-size: 24px;">%choice%</button>', // Inline CSS for button size
+            button_html: '<button class="delayed-button" style="font-size: 24px;">%choice%</button>',
             on_load: function() {
                 var button = document.querySelector('.delayed-button');
-                // Style the button as disabled
-                button.style.backgroundColor = 'gray'; // Light gray background
-                button.style.opacity = '0.5'; // Reduced opacity
-                button.style.cursor = 'not-allowed'; // Cursor change to indicate non-interactivity
-                button.disabled = true; // Button is initially disabled
                 
-                // After 2 seconds, enable the button and reset its style
-                setTimeout(function() {
-                button.style.backgroundColor = ''; // Resets to default color
-                button.style.opacity = '1'; // Resets opacity to full
-                button.style.cursor = 'pointer'; // Cursor returns to pointer on hover
-                button.disabled = false; // Enables the button
-                }, 2000);
+                // Style the button as disabled initially
+                button.style.backgroundColor = 'gray';
+                button.style.opacity = '0.5';
+                button.style.cursor = 'not-allowed';
+                button.disabled = true;
+    
+                // Function to enable the button after delay and set up spacebar functionality
+                function enableButton() {
+                    button.style.backgroundColor = ''; // Reset to default color
+                    button.style.opacity = '1'; // Reset opacity
+                    button.style.cursor = 'pointer'; // Reset cursor
+                    button.disabled = false;
+    
+                    // Spacebar functionality
+                    document.addEventListener('keyup', function handleSpacebar(event) {
+                        if (event.code === 'Space') {
+                            button.click(); // Trigger button click
+                            document.removeEventListener('keyup', handleSpacebar); // Remove listener after use
+                        }
+                    });
+                }
+    
+                // Enable the button after 2 seconds and allow spacebar interaction
+                setTimeout(enableButton, 2000);
             }
-        }
-    })
+        };
+    });
+    
 
     // Session end
     var sessionEnd = {
