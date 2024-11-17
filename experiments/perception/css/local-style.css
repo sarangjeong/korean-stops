@@ -143,7 +143,7 @@ td:nth-child(9) {
 }
 
 .slide {
-	border: 1px solid #666;
-    width: 800px;
-    height: 750px;
+	border: 0px solid #666;
+    width: 700px;
+    height: 700px;
 }
