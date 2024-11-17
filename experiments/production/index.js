@@ -7,15 +7,6 @@ let timeline = [
     thanksSlide
 ]; // Replaced experimentInstruction with overallInstruction
 
-// Function to get the query parameter by name
-function getQueryParameter(name) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
-}
-
-// Retrieve the participant_id from the URL
-const participant_id = getQueryParameter('participant_id');
-
 jsPsych.init({
     timeline: timeline,
     show_progress_bar: true,
