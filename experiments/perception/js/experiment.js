@@ -59,11 +59,19 @@ function make_trial_slide(set_index) {
       aud.src = "audio/"+stim.audio;
       console.log("audio source:",aud.src)
       aud.load();
-      // aud.play();
-      setTimeout(function(){ 
-        aud.play(); 
-        }, 300)
+      
+      // Disable keyboard input until the audio finishes playing
+      exp.keyboardEnabled = false;
 
+      // Play audio after a slight delay
+      setTimeout(function() { 
+        aud.play(); 
+      }, 300);
+
+      // Enable keyboard events after audio finishes playing
+      aud.onended = function() {
+        exp.keyboardEnabled = true;
+      };
 
       $(".err").hide();
 
@@ -331,10 +339,19 @@ function make_slides(f) {
       aud.src = "audio/"+stim.audio;
       console.log("audio source:",aud.src)
       aud.load();
-      // aud.play();
-      setTimeout(function(){ 
+      
+      // Disable keyboard input until the audio finishes playing
+      exp.keyboardEnabled = false;
+
+      // Play audio after a slight delay
+      setTimeout(function() { 
         aud.play(); 
-        }, 300)
+      }, 300);
+
+      // Enable keyboard events after audio finishes playing
+      aud.onended = function() {
+        exp.keyboardEnabled = true;
+      };
 
       $(".err").hide();
 
@@ -521,33 +538,31 @@ function init() {
 
   $('.slide').hide(); //hide everything
 
-  // use keyboard to choose options and go next page
-  document.addEventListener('keyup', function(e){
+  document.addEventListener('keyup', function(e) {
     const keyCode = e.key;
-      num_radio_elements = $("input[name='word']").length
-      trials = []
+
+    // Check if keyboard input is enabled
+    if (exp.keyboardEnabled) {
+      num_radio_elements = $("input[name='word']").length;
+      trials = [];
       for (let i = 1; i <= exp.number_of_trial_set; i++) {
         trials.push("trial" + i.toString());
       }
 
-      if((['practice'] + trials).includes(exp.structure[exp.slideIndex])) {
-        if(keyCode == '1') {
+      if ((['practice'] + trials).includes(exp.structure[exp.slideIndex])) {
+        if (keyCode == '1') {
           $("input[value='lenis']").prop("checked", true);
-        }
-        else if(keyCode == '2') {
+        } else if (keyCode == '2') {
           $("input[name='word'][value='tense']").prop("checked", true);
-        }
-        else if(keyCode == '3') {
+        } else if (keyCode == '3') {
           $("input[name='word'][value='asp']").prop("checked", true);
-        }
-        else if (keyCode == 'Enter') {
+        } else if (keyCode == 'Enter') {
           exp.slides[exp.structure[exp.slideIndex]].button();
-        }
-        // press any key, then it shows in the console the data collected so far
-        else if (keyCode == 'p') {
+        } else if (keyCode == 'p') {
           console.log(exp.data_trials);
         }
       }
+    }
   });
 
   $("#start_button").click(function() {
