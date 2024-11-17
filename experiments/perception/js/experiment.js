@@ -69,7 +69,8 @@ function make_trial_slide(set_index) {
       }, 300);
 
       // Enable keyboard events after audio finishes playing
-      aud.onended = function() {
+      aud.onended = () => {
+        this.audio_end_time = Date.now();
         exp.keyboardEnabled = true;
       };
 
@@ -80,6 +81,7 @@ function make_trial_slide(set_index) {
     // handle click on "Continue" button
     button: function() {
       this.radio = $("input[name='word']:checked");
+      this.responded_time = Date.now();
       // this.strange = $("#check-strange:checked").val() === undefined ? 0 : 1;
       if (this.radio.val()) {
         this.log_responses();
@@ -100,7 +102,8 @@ function make_trial_slide(set_index) {
         "word": this.stim.word,
         "poa": this.stim.poa,
         "vot": this.stim.vot,
-        "f0": this.stim.f0
+        "f0": this.stim.f0,
+        "response_time_milliseconds": (this.responded_time - this.audio_end_time)
       });
       console.log(exp.data_trials)
     },
