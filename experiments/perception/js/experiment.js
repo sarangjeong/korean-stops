@@ -11,6 +11,9 @@ function make_trial_slide(set_index) {
       $('#asp').empty()
       $(".err").hide()
 
+      // unselect checkbox not_heard
+      $('#not_heard').prop('checked', false)
+
       // store stimulus data
       this.stim = stim;
 
@@ -99,6 +102,7 @@ function make_trial_slide(set_index) {
         "slide_number_in_experiment": exp.phase, //exp.phase is a built-in trial number tracker
         "id": this.stim.audio,
         "response": this.radio.val(),
+        "not_heard": $('#not_heard').is(':checked'),
         "word": this.stim.word,
         "poa": this.stim.poa,
         "vot": this.stim.vot,
@@ -296,6 +300,9 @@ function make_slides(f) {
       $('#asp_p').empty()
       $(".err").hide()
 
+      // unselect checkbox not_heard
+      $('#not_heard_p').prop('checked', false)
+
       // store stimulus data
       this.stim = stim;
 
@@ -376,6 +383,7 @@ function make_slides(f) {
         "slide_number_in_experiment": exp.phase,
         "id": "practice",
         "response": this.radio.val(),
+        "not_heard": $('#not_heard_p').is(':checked'),
         "word": this.stim.word,
         "poa": this.stim.poa,
         "vot": this.stim.vot,
