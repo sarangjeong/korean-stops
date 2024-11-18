@@ -53,7 +53,11 @@ function createSession(sessionNumber, includeSessionEnd = true) {
         return {
             type: "html-button-response",
             stimulus: `<h1 style="font-size: 10em;">${word}</h1>`,
-            prompt: "<p>단어를 소리내어 읽은 뒤, \"다음\" 버튼을 클릭하거나 스페이스바를 누르세요</p>",
+            prompt: `
+                <p>
+                    단어를 소리내어 읽은 뒤, \"다음\" 버튼을 클릭하거나 스페이스바를 누르세요.<br>
+                    혹시 실수하셨을 경우, 단어를 다시 읽으시면 됩니다.
+                </p>`,
             choices: ['다음'],
             button_html: '<button class="delayed-button" style="font-size: 24px;">%choice%</button>',
             on_load: function() {
