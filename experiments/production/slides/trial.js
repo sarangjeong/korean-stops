@@ -51,43 +51,15 @@ function createSession(sessionNumber, includeSessionEnd = true) {
 
     var sessionTrials = shuffledKoreanWords.map(word => {
         return {
-            type: "html-button-response",
+            type: "html-keyboard-response",
+            trial_duration: 2500,
             stimulus: `<h1 style="font-size: 10em;">${word}</h1>`,
             prompt: `
                 <p>
                     단어를 소리내어 읽은 뒤, \"다음\" 버튼을 클릭하거나 스페이스바를 누르세요.<br>
                     혹시 실수하셨을 경우, 단어를 다시 읽으시면 됩니다.
                 </p>`,
-            choices: ['다음'],
-            button_html: '<button class="delayed-button" style="font-size: 24px;">%choice%</button>',
-            on_load: function() {
-                var button = document.querySelector('.delayed-button');
-                
-                // Style the button as disabled initially
-                button.style.backgroundColor = 'gray';
-                button.style.opacity = '0.5';
-                button.style.cursor = 'not-allowed';
-                button.disabled = true;
-    
-                // Function to enable the button after delay and set up spacebar functionality
-                function enableButton() {
-                    button.style.backgroundColor = ''; // Reset to default color
-                    button.style.opacity = '1'; // Reset opacity
-                    button.style.cursor = 'pointer'; // Reset cursor
-                    button.disabled = false;
-    
-                    // Spacebar functionality
-                    document.addEventListener('keyup', function handleSpacebar(event) {
-                        if (event.code === 'Space') {
-                            button.click(); // Trigger button click
-                            document.removeEventListener('keyup', handleSpacebar); // Remove listener after use
-                        }
-                    });
-                }
-    
-                // Enable the button after 2 seconds and allow spacebar interaction
-                setTimeout(enableButton, 2000);
-            }
+            choices: "NO_KEYS",
         };
     });
     
