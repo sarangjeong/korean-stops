@@ -24,7 +24,7 @@ function createSession(sessionNumber, includeSessionEnd = true) {
                 <li>실험을 시작하기 전에 <strong>방해받지 않는 공간</strong>으로 가서 주변의 <strong>소음을 차단</strong>해 주세요. 휴대전화는 <strong>무음</strong>으로 설정해 주세요.</li>
                 <li>스마트폰에서 <strong>음성메모 녹음</strong>을 시작해 주세요. 스마트폰을 입에서 약 <strong>10-20cm</strong> 거리에 두세요. (다른 녹음 장비가 있으실 경우 그것을 사용하셔도 좋습니다.)</li>
                 <li>화면에 단어가 나타나면 그 단어를 소리내어 읽어 주세요.</li>
-                <li><strong>3초마다 자동으로 다음 단어가 나타납니다.</strong></li>
+                <li><strong>2초마다 자동으로 다음 단어가 나타납니다.</strong></li>
                 <li>혹시 실수하셨을 경우, 당황하지 말고 다음 단어로 넘어가세요.</li>
                 <li>단어를 <strong>나열하듯 쭉 읽지 마시고</strong>, 각 단어를 독립적으로 읽어 주세요.</li>
             </ol>
@@ -52,7 +52,7 @@ function createSession(sessionNumber, includeSessionEnd = true) {
     var sessionTrials = shuffledKoreanWords.map(word => {
         return {
             type: "html-keyboard-response",
-            trial_duration: 2500,
+            trial_duration: 2000,
             stimulus: `<h1 style="font-size: 10em;">${word}</h1>`,
             prompt: `
                 <p>
