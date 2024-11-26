@@ -6,57 +6,64 @@
 # set-up #
 ##########
 
+# set working directory
+this.dir <- dirname(rstudioapi::getSourceEditorContext()$path)
+setwd(this.dir)
+
 # load libraries
 library(tidyverse)
 library(lme4)
 library(ggplot2)
 library(MuMIn)
+library(brms)
+library(glmmTMB)
 source("helpers.R")
-
-# set working directory
-this.dir <- dirname(rstudioapi::getSourceEditorContext()$path)
-setwd(this.dir)
 
 ##################
 # data wrangling #
 ##################
 
+# load worker id data & filter only those w prolific id
+worker_id <- read.csv("../data/korean_stops_perception_3_poa_all_ages-workerids.csv", stringsAsFactors = TRUE)
+workerid_with_prolific_id <- worker_id$workerid[worker_id$prolific_participant_id != "<no-id>"]
+workerid_with_no_prolific_id <- worker_id$workerid[worker_id$prolific_participant_id == "<no-id>"]
+workerid_with_prolific_id
+workerid_with_no_prolific_id
+
 # load trial data
-trials <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-trials.csv", stringsAsFactors = TRUE)
+trials <- read.csv("../data/korean_stops_perception_3_poa_all_ages-trials.csv", stringsAsFactors = TRUE)
 
-# load time data
-whole_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-time_in_minutes.csv", stringsAsFactors = TRUE)
-trial_1_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-triral_1_time_in_minutes.csv", stringsAsFactors = TRUE)
-trial_2_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-triral_2_time_in_minutes.csv", stringsAsFactors = TRUE)
-trial_3_time <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-triral_3_time_in_minutes.csv", stringsAsFactors = TRUE)
+# load subject info data
+subject_info <- read.csv("../data/korean_stops_perception_3_poa_all_ages-subject_information.csv")
+subject_info <- subject_info %>%
+  mutate(across(c(enjoyment, equipment_type, fairprice, gender, impairment), as.factor))
 
-# load subject info data whose encoding I manually changed to ANSI to fix Korean encoding problem
-subject_info <- read.csv("../data/korean_stop_contrast_perception_labial_pilot_young-subject_information_ANSI.csv")
-subject_info$assess = as.factor(subject_info$assess)
-subject_info$gender = as.factor(subject_info$gender)
+# remove rows with <no-id>
+trials <- trials %>%
+  filter(workerid %in% workerid_with_prolific_id)
+subject_info <- subject_info %>%
+  filter(workerid %in% workerid_with_prolific_id)
 
-# remove unnecessary columns from time & subject data
+# remove unnecessary columns 
 drops <- c("proliferate.condition", "error")
-whole_time <- whole_time[ , !(names(whole_time) %in% drops)]
-trial_1_time <- trial_1_time[ , !(names(trial_1_time) %in% drops)]
-trial_2_time <- trial_2_time[ , !(names(trial_2_time) %in% drops)]
-trial_3_time <- trial_3_time[ , !(names(trial_3_time) %in% drops)]
+trials <- trials[ , !(names(trials) %in% drops)]
 subject_info <- subject_info[ , !(names(subject_info) %in% drops)]
+
+# change subject age based on manual check
+view(subject_info)
+subject_info$age[subject_info$age == 196707] <- 2024-1967
 
 # merge data
 nrow(trials)
 stops <- trials %>%
-  left_join(.,whole_time,by=c("workerid")) %>%
-  left_join(.,trial_1_time,by=c("workerid")) %>%
-  left_join(.,trial_2_time,by=c("workerid")) %>%
-  left_join(.,trial_3_time,by=c("workerid")) %>%
   left_join(.,subject_info,by=c("workerid"))
 nrow(stops) # check if # of rows did not change
 
+view(stops)
 # change column names for subject & condition
 stops <- stops %>%
   rename(subject = workerid,
-         condition = proliferate.condition
+         rt = response_time_milliseconds
   )
 stops$subject = as.factor(stops$subject)
 
@@ -73,13 +80,20 @@ stops$error <- NULL; stops$response_practice <- NULL
 stops <- stops[stops$impairment!=1 ,]
 nrow(stops)
 
-# 2) kyungsang dialect: 3 (I manually checked the subject info data to identify KS speakers; 1 KS speaker has already been excluded for hearing impairment)
-ks_speaker <- c("6", "8", "12")
+# 2) kyungsang dialect: 3 (I manually checked the subject info data to identify KS speakers)
+# TODO: if I collect more data, do the manual checking again!
+ks_speaker <- c("426")
 stops <- stops[!(stops$subject %in% ks_speaker) ,]
 nrow(stops)
 
-# 3) more than 3 non-aspirated responses for vot >= 6 & f0 >= 7: 0 ("18" has 2 such responses)
-stops[stops$f0 >= 7 & stops$vot >= 6 & stops$response!="asp",]$subject
+# 3) more than 3 non-aspirated responses for vot >= 7 & f0 >= 7: 1 participant ("453")
+stops[stops$f0 >= 7 & stops$vot >= 7 & stops$response!="asp",]$subject
+stops <- stops[(stops$subject != 453) ,]
+nrow(stops)
+
+# 4) not_heard == TRUE
+stops <- stops[(stops$not_heard == "False") ,]
+nrow(stops)
 
 # drop empty factor levels after exclusion
 stops$response = as.character(stops$response); stops$response = as.factor(stops$response)
@@ -102,9 +116,10 @@ stops[stops$response == "asp" ,]$asp = 1
 
 # create columns for centered f0 & vot
 stops <- stops %>% 
-  mutate(sf0 = scale(f0), svot = scale(vot))
-
+  mutate(sf0 = scale(f0), svot = scale(vot), sage = scale(age))
+view(stops)
 ### data wrangling for PLOTS ###
+# TODO: plot young vs old separately
 
 # make a new df, create response count columns
 stops_mean <- stops %>%
@@ -144,7 +159,7 @@ stops_mean[stops_mean$predominant=="asp" ,]$predominant_num <- stops_mean[stops_
 
 # manually change the values when the largest category is not single (i.e. tied first place)
 
-# identify tied cases
+# identify tied cases --> turns out none; TODO: skip the below steps
 stops_mean[stops_mean$predominant == "none",] #f0==4 & vot==3, f0==4 & vot==4
 
 # f0==4 & vot==3
@@ -162,7 +177,7 @@ stops_mean[stops_mean$f0 == 4 & (stops_mean$vot==3 | stops_mean$vot==4) ,] # che
 # initial
 stops_mean$label <- toupper(substr(stops_mean$predominant, 1, 1))
 
-# manually change the values when the largest category is not single
+# manually change the values when the largest category is not single; TODO: skip this step
 stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$label <- "TL"
 stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$label <- "AL"
 
@@ -294,6 +309,48 @@ ggsave(
 ##########
 # models #
 ##########
+
+# TODO: decide btwn `vot * age + f0 * age` vs. `vot * f0 * age`
+
+stops$response <- relevel(stops$response, ref = "lenis")
+
+brm_model <- brm(
+  formula = response ~ svot * sage + sf0 * sage + (1 + svot + sf0 | subject),
+  data = stops,
+  family = categorical(link = "logit"),  # Multinomial logistic regression
+  cores = 4,                             # Use multiple cores for faster computation
+  iter = 2000,                           # Number of iterations (adjust as needed)
+  control = list(adapt_delta = 0.95)     # Helps convergence for complex models
+)
+summary(brm_model)
+lenis_asp <- stops %>%
+  filter(lenis==1 | asp==1) %>%
+  mutate(response = as.character(response)) %>%
+  mutate(response = as.factor(response))
+
+lenis_tense <- stops %>%
+  filter(lenis==1 | tense==1) %>%
+  mutate(response = as.character(response)) %>%
+  mutate(response = as.factor(response))
+
+asp_tense <- stops %>%
+  filter(asp==1 | tense==1) %>%
+  mutate(response = as.character(response)) %>%
+  mutate(response = as.factor(response))
+
+# fixed effects only
+
+m.lenis_asp = glm(asp ~ sf0 * sage + svot * sage, data=lenis_asp, family="binomial")
+summary(m.lenis_asp)
+
+m.lenis_tense = glm(tense ~ sf0 * sage + svot * sage, data=lenis_tense, family="binomial")
+summary(m.lenis_tense)
+
+m.asp_tense = glm(asp ~ sf0 * sage + svot * sage, data=asp_tense, family="binomial")
+summary(m.asp_tense)
+
+m.random.lenis_asp = glmer(asp ~ sf0 * sage + svot * sage + (1 + sf0 + svot | subject), data=lenis_asp, family="binomial")
+
 
 ### fixed effects only --> as expected!
 
