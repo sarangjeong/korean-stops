@@ -357,6 +357,7 @@ cor(lenis_asp[c("sf0", "svot", "sage")])
 control = glmerControl(optimizer = "bobyqa", 
                        optCtrl = list(maxfun = 1e5))
 
+# Lenis vs Asp
 m.random.lenis_asp = glmer(
   asp ~ sf0 * sage + svot * sage + (1 + sf0 + svot | subject),
   data=lenis_asp,
@@ -364,6 +365,24 @@ m.random.lenis_asp = glmer(
   control = control
 )
 summary(m.random.lenis_asp)
+
+# Lenis vs Tense
+m.random.lenis_tense = glmer(
+  tense ~ sf0 * sage + svot * sage + (1 + sf0 + svot | subject),
+  data=lenis_tense,
+  family="binomial",
+  control = control
+)
+summary(m.random.lenis_tense)
+
+# Asp vs Tense
+m.random.asp_tense = glmer(
+  asp ~ sf0 * sage + svot * sage + (1 + sf0 + svot | subject),
+  data=asp_tense,
+  family="binomial",
+  control = control
+)
+summary(m.random.asp_tense)
 
 # --- Legacy ---
   
