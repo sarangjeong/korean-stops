@@ -323,6 +323,7 @@ brm_model <- brm(
   control = list(adapt_delta = 0.95)     # Helps convergence for complex models
 )
 summary(brm_model)
+
 lenis_asp <- stops %>%
   filter(lenis==1 | asp==1) %>%
   mutate(response = as.character(response)) %>%
@@ -349,9 +350,20 @@ summary(m.lenis_tense)
 m.asp_tense = glm(asp ~ sf0 * sage + svot * sage, data=asp_tense, family="binomial")
 summary(m.asp_tense)
 
-m.random.lenis_asp = glmer(asp ~ sf0 * sage + svot * sage + (1 + sf0 + svot | subject), data=lenis_asp, family="binomial")
+control = glmerControl(optimizer = "bobyqa", 
+                       optCtrl = list(maxfun = 1e5))
 
-
+m.random.lenis_asp = glmer(
+  asp ~ sf0 * sage + svot * sage + (1 + sf0 + svot | subject),
+  data=lenis_asp,
+  family="binomial",
+  control = control
+)
+summary(lenis_asp)
+table(lenis_asp$subject)
+cor(lenis_asp[c("sf0", "svot", "sage")])
+# --- Legacy ---
+  
 ### fixed effects only --> as expected!
 
 m = glm(asp ~ f0 + vot, data=stops, family="binomial")
