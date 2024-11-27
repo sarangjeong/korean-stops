@@ -350,6 +350,10 @@ summary(m.lenis_tense)
 m.asp_tense = glm(asp ~ sf0 * sage + svot * sage, data=asp_tense, family="binomial")
 summary(m.asp_tense)
 
+# Check the collinearity
+cor(lenis_asp[c("sf0", "svot", "sage")])
+
+
 control = glmerControl(optimizer = "bobyqa", 
                        optCtrl = list(maxfun = 1e5))
 
@@ -359,9 +363,8 @@ m.random.lenis_asp = glmer(
   family="binomial",
   control = control
 )
-summary(lenis_asp)
-table(lenis_asp$subject)
-cor(lenis_asp[c("sf0", "svot", "sage")])
+summary(m.random.lenis_asp)
+
 # --- Legacy ---
   
 ### fixed effects only --> as expected!
