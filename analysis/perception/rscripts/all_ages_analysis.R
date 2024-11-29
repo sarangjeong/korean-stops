@@ -26,8 +26,6 @@ processed_data <- basic_data_preprocessing(
   subject_information_csv_path = "../data/korean_stops_perception_3_poa_all_ages-subject_information.csv"
 )
 
-view(processed_data)
-
 fit_brms_model <- function(data) {
   brm(
     formula = response ~ svot * sage + sf0 * sage + (1 + svot + sf0 | subject),
@@ -119,38 +117,7 @@ print(forest_plot)
 data_for_rainbow_plot = plot_data_preprocessing(processed_data)
 rainbow_plot = f0_vot_rainbow_plot(
   data = data_for_rainbow_plot,
-  title = "[All ages] Mean responses across F0 and VOT continua",
-  path = "../graphs/all_ages_three_test.png"
+  title = "Mean responses across F0 and VOT continua",
+  path = "../graphs/all_ages_three.png"
 )
 print(rainbow_plot)
-
-####################################
-# Multiple Binary Logistic Regressions
-####################################
-
-# Preprocess for each model
-lenis_asp_data <- processed_data %>%
-  filter(lenis==1 | asp==1) %>%
-  mutate(response = as.character(response)) %>%
-  mutate(response = as.factor(response))
-
-lenis_tense_data <- processed_data %>%
-  filter(lenis==1 | tense==1) %>%
-  mutate(response = as.character(response)) %>%
-  mutate(response = as.factor(response))
-
-asp_tense_data <- processed_data %>%
-  filter(asp==1 | tense==1) %>%
-  mutate(response = as.character(response)) %>%
-  mutate(response = as.factor(response))
-
-# Fit model
-model <- binary_logistic_regression(
-  lenis_asp_data = lenis_asp_data,
-  lenis_tense_data = lenis_tense_data,
-  asp_tense_data = asp_tense_data,
-  model_dir_path = "../model/all_ages_binary_logistic_regression")
-
-summary(model$lenis_asp_model)
-summary(model$lenis_tense_model)
-summary(model$asp_tense_model)

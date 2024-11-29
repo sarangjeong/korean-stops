@@ -167,7 +167,7 @@ young_group.plot_data = plot_data_preprocessing(young_group.data)
 young_group.rainbow_plot = f0_vot_rainbow_plot(
   data = young_group.plot_data,
   title = "Younger group's mean responses across F0 and VOT continua",
-  path = "../graphs/young_group_three_test.png"
+  path = "../graphs/young_group_three.png"
 )
 print(young_group.rainbow_plot)
 
@@ -279,3 +279,76 @@ model <- save_or_load_model(
   data = age_groups.data,
   model_function = fit_brms_model)
 summary(model)
+
+# Extract model summaries into a tidy data frame
+tidy_model <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
+
+# Filter out intercepts and prepare data
+tidy_model_filtered <- tidy_model %>%
+  filter(!str_detect(term, "Intercept")) %>%  # Exclude intercepts
+  mutate(
+    category = case_when(
+      str_detect(term, "mutense") ~ "Tense",
+      str_detect(term, "muasp") ~ "Aspirate",
+      TRUE ~ "Other"
+    ),
+    # Simplify term names by removing "mu" and replacing underscores
+    term = str_replace_all(term, "_", "") %>%
+      str_remove_all("mutense") %>%
+      str_remove_all("muasp") %>%
+      str_replace_all("svot", "VOT") %>%  # Remove "s" from "svot"
+      str_replace_all("sf0", "f0") %>%      # Remove "s" from "sf0"
+      str_replace_all("agegroupyoung", "young"),
+    term = str_to_title(term),  # Capitalize first letter of each word
+    term = str_replace_all(term, "Vot", "VOT"),
+    term = str_replace_all(term, "Young:F0", "F0:Young")
+  )
+
+tidy_model_filtered
+
+row_colors <- c(
+  "VOT" = "#1f77b4",
+  "Young" = "#ff7f0e",
+  "F0" = "#2ca02c",
+  "VOT:Young" = "#d62728",
+  "F0:Young" = "#9467bd"
+)
+
+# Determine y-axis range for both facets
+y_limits <- range(
+  c(tidy_model_filtered$conf.low, tidy_model_filtered$conf.high),
+  na.rm = TRUE
+)
+y_limits <- c(min(y_limits, -abs(y_limits)), max(y_limits, abs(y_limits)))  # Symmetric range
+
+# Change the order of the x-axis labels
+forest_plot <- tidy_model_filtered %>%
+  filter(category %in% c("Tense", "Aspirate")) %>%
+  ggplot(aes(x = term, y = estimate, color = term)) +  # Switched x and y
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +  # Adjusted for switched axes
+  scale_color_manual(values = row_colors) +
+  scale_x_discrete(limits = c("F0", "VOT", "Young", "F0:Young", "VOT:Young")) +  # Set x-axis order
+  scale_y_continuous(limits = y_limits, oob = scales::squish) +  # Set consistent y-axis range
+  theme_minimal() +
+  labs(
+    x = "Fixed effect",
+    y = "Coefficient",
+    title = "Bayesian Analysis Result",
+    subtitle = "Note: 'Vot' and 'F0' are scaled variables.",
+    caption = "Error bars represent 95% confidence intervals"
+  ) +
+  facet_wrap(~category) +  # Facet for separation
+  theme(legend.position = "none")  # Remove legend
+
+# Print the forest plot
+print(forest_plot)
+
+ggsave(
+  "../graphs/old_group_vs_young_group_bayesian_analysis.png",
+  plot = forest_plot,
+  scale = 1,
+  width = 10,
+  height = 6,
+  dpi = "retina",
+)
