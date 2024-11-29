@@ -101,7 +101,7 @@ multinomial_logistic_regression <- function(
       cores = 4,                             # Use multiple cores for faster computation
       threads = threading(4),
       iter = 2000,                           # Number of iterations (adjust as needed)
-      control = list(adapt_delta = 0.95)     # Helps convergence for complex models
+      control = list(adapt_delta = 0.95, max_treedepth = 12)     # Helps convergence for complex models
     )
   }
   
