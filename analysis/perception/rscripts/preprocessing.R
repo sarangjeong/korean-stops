@@ -50,6 +50,7 @@ basic_data_preprocessing <- function(
   
   # change subject age based on manual check
   subject_info$age[subject_info$age == 196707] <- 2024-1967
+  subject_info$age[subject_info$age == -59] <- 59
   
   # merge data
   nrow(trials)
