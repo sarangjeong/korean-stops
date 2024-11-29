@@ -348,7 +348,7 @@ ggsave(
   "../graphs/old_group_vs_young_group_bayesian_analysis.png",
   plot = forest_plot,
   scale = 1,
-  width = 10,
-  height = 6,
+  width = 7,
+  height = 3,
   dpi = "retina",
 )
