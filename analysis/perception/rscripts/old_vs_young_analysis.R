@@ -12,6 +12,8 @@ setwd(this.dir)
 
 # load libraries
 library(tidyverse)
+library(lme4)
+library(brms)
 source("preprocessing.R")
 source("models.R")
 source("plot.R")
@@ -245,6 +247,7 @@ print(old_group.asp_plot)
 # Bayesian Multinomial Logistic Regression with Mixed Effects
 ####################################
 ####################################
+
 # Categorize Age into two age groups (old, young)
 # old = participants who are older than or equal to `minimum_age_in_old_group`
 # young = participants who are younger than or equal to `maximum_age_in_young_group`
@@ -281,15 +284,15 @@ model <- save_or_load_model(
 summary(model)
 
 # Extract model summaries into a tidy data frame
-tidy_model <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
+model.fixed_effect.result <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
 
 # Filter out intercepts and prepare data
-tidy_model_filtered <- tidy_model %>%
+model.fixed_effect.filtered_result <- model.fixed_effect.result %>%
   filter(!str_detect(term, "Intercept")) %>%  # Exclude intercepts
   mutate(
     category = case_when(
       str_detect(term, "mutense") ~ "Tense",
-      str_detect(term, "muasp") ~ "Aspirate",
+      str_detect(term, "muasp") ~ "Aspirated",
       TRUE ~ "Other"
     ),
     # Simplify term names by removing "mu" and replacing underscores
@@ -304,9 +307,7 @@ tidy_model_filtered <- tidy_model %>%
     term = str_replace_all(term, "Young:F0", "F0:Young")
   )
 
-tidy_model_filtered
-
-row_colors <- c(
+model.fixed_effect.color_map <- c(
   "VOT" = "#1f77b4",
   "Young" = "#ff7f0e",
   "F0" = "#2ca02c",
@@ -316,20 +317,20 @@ row_colors <- c(
 
 # Determine y-axis range for both facets
 y_limits <- range(
-  c(tidy_model_filtered$conf.low, tidy_model_filtered$conf.high),
+  c(model.fixed_effect.filtered_result$conf.low, model.fixed_effect.filtered_result$conf.high),
   na.rm = TRUE
 )
-y_limits <- c(min(y_limits, -abs(y_limits)), max(y_limits, abs(y_limits)))  # Symmetric range
+model.fixed_effect.y_limits <- c(min(y_limits, -abs(y_limits)), max(y_limits, abs(y_limits)))  # Symmetric range
 
 # Change the order of the x-axis labels
-forest_plot <- tidy_model_filtered %>%
-  filter(category %in% c("Tense", "Aspirate")) %>%
+model.fixed_effect.plot <- model.fixed_effect.filtered_result %>%
+  filter(category %in% c("Tense", "Aspirated")) %>%
   ggplot(aes(x = term, y = estimate, color = term)) +  # Switched x and y
   geom_point(size = 3) +
   geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +  # Adjusted for switched axes
-  scale_color_manual(values = row_colors) +
+  scale_color_manual(values = model.fixed_effect.color_map) +
   scale_x_discrete(limits = c("F0", "VOT", "Young", "F0:Young", "VOT:Young")) +  # Set x-axis order
-  scale_y_continuous(limits = y_limits, oob = scales::squish) +  # Set consistent y-axis range
+  scale_y_continuous(limits = model.fixed_effect.y_limits, oob = scales::squish) +  # Set consistent y-axis range
   theme_minimal() +
   labs(
     x = "Fixed effect",
@@ -342,13 +343,86 @@ forest_plot <- tidy_model_filtered %>%
   theme(legend.position = "none")  # Remove legend
 
 # Print the forest plot
-print(forest_plot)
+print(model.fixed_effect.plot)
 
 ggsave(
-  "../graphs/old_group_vs_young_group_bayesian_analysis.png",
-  plot = forest_plot,
+  "../graphs/old_group_vs_young_group_bayesian_analysis_fixed_effect.png",
+  plot = model.fixed_effect.plot,
   scale = 1,
   width = 7,
+  height = 4,
+  dpi = "retina",
+)
+
+####################################
+# Plot the random effects
+
+# You can see the random effect per each participant
+# tidy_random_effects <- broom.mixed::tidy(model, effects = "ran_vals", conf.int = TRUE)
+model.random_effect.result <- broom.mixed::tidy(model, effects = "ran_pars", conf.int = TRUE)
+
+# Filter out intercepts and prepare data
+model.random_effect.filtered_result <- model.random_effect.result %>%
+  filter(!str_detect(term, "cor")) %>%  # Exclude correlation
+  mutate(
+    category = case_when(
+      str_detect(term, "mutense") ~ "Tense",
+      str_detect(term, "muasp") ~ "Aspirated",
+      TRUE ~ "Other"
+    ),
+    # Simplify term names by removing unnecessary parts
+    term = str_replace_all(term, "_", "") %>%
+      str_remove_all("sd") %>%
+      str_remove_all("mutense") %>%
+      str_remove_all("muasp") %>%
+      str_replace_all("svot", "VOT") %>%  # Remove "s" from "svot"
+      str_replace_all("sf0", "f0") %>%
+      str_remove_all("[()]"),  # Remove parentheses
+    term = str_to_title(term),  # Capitalize first letter of each word
+    term = str_replace_all(term, "Vot", "VOT")
+  )
+
+model.random_effect.color_mape <- c(
+  "VOT" = "#1f77b4",
+  "Intercept" = "#00000e",
+  "F0" = "#2ca02c"
+)
+
+# Determine y-axis range for both facets
+y_limits <- range(
+  c(model.random_effect.filtered_result$conf.low, model.random_effect.filtered_result$conf.high),
+  na.rm = TRUE
+)
+model.random_effect.y_limits <- c(0, max(y_limits, abs(y_limits)))  # Symmetric range
+
+# Change the order of the x-axis labels
+model.random_effect.plot <- model.random_effect.filtered_result %>%
+  filter(category %in% c("Tense", "Aspirated")) %>%
+  ggplot(aes(x = term, y = estimate, color = term)) +  # Switched x and y
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +  # Adjusted for switched axes
+  scale_color_manual(values = model.random_effect.color_mape) +
+  scale_x_discrete(limits = c("F0", "VOT", "Intercept")) +  # Set x-axis order
+  scale_y_continuous(limits = model.random_effect.y_limits, oob = scales::squish) +  # Set consistent y-axis range
+  theme_minimal() +
+  labs(
+    x = "Random effect",
+    y = "SD",
+    title = "Bayesian Analysis Result - Random Effects",
+    subtitle = "Note: 'Vot' and 'F0' are scaled variables.",
+    caption = "Error bars represent 95% confidence intervals"
+  ) +
+  facet_wrap(~category) +  # Facet for separation
+  theme(legend.position = "none")  # Remove legend
+
+# Print the forest plot
+print(model.random_effect.plot)
+
+ggsave(
+  "../graphs/old_group_vs_young_group_bayesian_analysis_random_effect.png",
+  plot = model.random_effect.plot,
+  scale = 1,
+  width = 5,
   height = 3,
   dpi = "retina",
 )
