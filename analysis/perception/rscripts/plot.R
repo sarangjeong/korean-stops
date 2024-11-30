@@ -74,7 +74,7 @@ f0_vot_rainbow_plot <- function(
   data, title, path
 ) {
   rainbow_plot <- ggplot(data, aes(vot, f0)) +
-    geom_tile(aes(fill = I(rgb(1 - data$asp, 1 - data$lenis, 1 - data$tense))))+
+    geom_tile(aes(fill = I(rgb(1 - asp, 1 - lenis, 1 - tense))))+
     #               color = c("cyan", "yellow", "magenta"))) +
     # scale_color_manual(values = c("cyan", "yellow", "magenta")) +
     geom_text(aes(label =  paste(label, as.character(round(predominant_num * 100, 1))))) +

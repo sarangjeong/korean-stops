@@ -154,29 +154,8 @@ plot_data_preprocessing <- function(
   stops_mean[stops_mean$predominant=="tense" ,]$predominant_num <- stops_mean[stops_mean$predominant=="tense" ,]$tense
   stops_mean[stops_mean$predominant=="asp" ,]$predominant_num <- stops_mean[stops_mean$predominant=="asp" ,]$asp
   
-  # manually change the values when the largest category is not single (i.e. tied first place)
-  
-  # identify tied cases --> turns out none; TODO: skip the below steps
-  stops_mean[stops_mean$predominant == "none",] #f0==4 & vot==3, f0==4 & vot==4
-  
-  # f0==4 & vot==3
-  stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$predominant <- "tense & lenis"
-  stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$predominant_num <- stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$lenis
-  
-  # f0==4 & vot==4
-  stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$predominant <- "asp & lenis"
-  stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$predominant_num <- stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$lenis
-  
-  stops_mean[stops_mean$f0 == 4 & (stops_mean$vot==3 | stops_mean$vot==4) ,] # check
-  
-  # new column for plot label
-  
   # initial
   stops_mean$label <- toupper(substr(stops_mean$predominant, 1, 1))
-  
-  # manually change the values when the largest category is not single; TODO: skip this step
-  # stops_mean[stops_mean$f0 == 4 & stops_mean$vot==3 ,]$label <- "TL"
-  # stops_mean[stops_mean$f0 == 4 & stops_mean$vot==4 ,]$label <- "AL"
   
   return(stops_mean)
 }
