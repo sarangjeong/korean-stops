@@ -167,16 +167,6 @@ summary(old_group.asp_tense_model)
 
 young_group.plot_data = plot_data_preprocessing(young_group.data)
 
-# Manual manipulation for tie cases
-young_group.plot_data[young_group.plot_data$f0 == 7 & young_group.plot_data$vot == 4, 'label'] <- "AT"
-young_group.plot_data[young_group.plot_data$f0 == 4 & young_group.plot_data$vot == 5, 'label'] <- "AL"
-
-young_group.plot_data <- young_group.plot_data %>%
-  rowwise() %>% # Operate row-wise
-  mutate(predominant_num = ifelse(any((f0 == 7) & (vot == 4)), tense, predominant_num)) %>%
-  mutate(predominant_num = ifelse(any((f0 == 4) & (vot == 5)), lenis, predominant_num)) %>%
-  ungroup()
-
 young_group.rainbow_plot = f0_vot_rainbow_plot(
   data = young_group.plot_data,
   title = "Younger group's mean responses across F0 and VOT continua",
@@ -436,3 +426,4 @@ ggsave(
   height = 3,
   dpi = "retina",
 )
+
