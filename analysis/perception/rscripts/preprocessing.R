@@ -51,6 +51,7 @@ basic_data_preprocessing <- function(
   # change subject age based on manual check
   subject_info$age[subject_info$age == 196707] <- 2024-1967
   subject_info$age[subject_info$age == -59] <- 59
+  subject_info$age[subject_info$age == 3111] <- 31
   
   # merge data
   nrow(trials)
@@ -109,8 +110,6 @@ basic_data_preprocessing <- function(
   # create columns for centered f0 & vot
   stops <- stops %>% 
     mutate(sf0 = scale(f0), svot = scale(vot), sage = scale(age))
-  ### data wrangling for PLOTS ###
-  # TODO: plot young vs old separately
   
   return(stops)
 }
@@ -144,18 +143,40 @@ plot_data_preprocessing <- function(
   stops_mean$predominant <- "none"
   stops_mean$predominant_num <- 0
   
-  # assign predominant category name
-  stops_mean[(stops_mean$lenis > stops_mean$tense) & (stops_mean$lenis > stops_mean$asp) ,]$predominant <- "lenis"
-  stops_mean[(stops_mean$tense > stops_mean$lenis) & (stops_mean$tense > stops_mean$asp) ,]$predominant <- "tense"
-  stops_mean[(stops_mean$asp > stops_mean$lenis) & (stops_mean$asp > stops_mean$tense) ,]$predominant <- "asp"
+  # find max value for each row
+  stops_mean$max_val <- pmax(stops_mean$lenis, stops_mean$tense, stops_mean$asp)
   
-  # assign predominant category %
-  stops_mean[stops_mean$predominant=="lenis" ,]$predominant_num <- stops_mean[stops_mean$predominant=="lenis" ,]$lenis
-  stops_mean[stops_mean$predominant=="tense" ,]$predominant_num <- stops_mean[stops_mean$predominant=="tense" ,]$tense
-  stops_mean[stops_mean$predominant=="asp" ,]$predominant_num <- stops_mean[stops_mean$predominant=="asp" ,]$asp
+  # assign predominant category name (single winner only)
+  stops_mean[(stops_mean$lenis > stops_mean$tense) & (stops_mean$lenis > stops_mean$asp), ]$predominant <- "lenis"
+  stops_mean[(stops_mean$tense > stops_mean$lenis) & (stops_mean$tense > stops_mean$asp), ]$predominant <- "tense"
+  stops_mean[(stops_mean$asp > stops_mean$lenis) & (stops_mean$asp > stops_mean$tense), ]$predominant <- "asp"
   
-  # initial
-  stops_mean$label <- toupper(substr(stops_mean$predominant, 1, 1))
+  # assign predominant category % (use max value for ties too)
+  stops_mean$predominant_num <- stops_mean$max_val
+  
+  # create label based on all tied maximum values
+  stops_mean$label <- ""
+  
+  for(i in 1:nrow(stops_mean)) {
+    tied <- c()
+    
+    if(stops_mean$lenis[i] == stops_mean$max_val[i]) {
+      tied <- c(tied, "L")
+    }
+    if(stops_mean$tense[i] == stops_mean$max_val[i]) {
+      tied <- c(tied, "T")
+    }
+    if(stops_mean$asp[i] == stops_mean$max_val[i]) {
+      tied <- c(tied, "A")
+    }
+    
+    # sort alphabetically for consistency (A, L, T order)
+    tied <- sort(tied)
+    stops_mean$label[i] <- paste(tied, collapse = "")
+  }
+  
+  # cleanup temporary column
+  stops_mean$max_val <- NULL
   
   return(stops_mean)
 }
