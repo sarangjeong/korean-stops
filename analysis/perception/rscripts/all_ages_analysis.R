@@ -120,6 +120,83 @@ ggsave(
 )
 
 ####################################
+# Plot the random effects
+
+# You can see the random effect per each participant
+# tidy_random_effects <- broom.mixed::tidy(model, effects = "ran_vals", conf.int = TRUE)
+model.random_effect.result <- broom.mixed::tidy(model, effects = "ran_pars", conf.int = TRUE)
+
+# Filter out intercepts and prepare data
+model.random_effect.filtered_result <- model.random_effect.result %>%
+  filter(!str_detect(term, "cor")) %>%  # Exclude correlation
+  mutate(
+    category = case_when(
+      str_detect(term, "mutense") ~ "Tense",
+      str_detect(term, "muasp") ~ "Aspirated",
+      TRUE ~ "Other"
+    ),
+    # Simplify term names by removing unnecessary parts
+    term = str_replace_all(term, "_", "") %>%
+      str_remove_all("sd") %>%
+      str_remove_all("mutense") %>%
+      str_remove_all("muasp") %>%
+      str_replace_all("svot", "VOT") %>%  # Remove "s" from "svot"
+      str_replace_all("sf0", "f0") %>%
+      str_remove_all("[()]"),  # Remove parentheses
+    term = str_to_title(term),  # Capitalize first letter of each word
+    term = str_replace_all(term, "Vot", "VOT")
+  )
+
+model.random_effect.color_mape <- c(
+  "VOT" = "#1f77b4",
+  "Intercept" = "#00000e",
+  "F0" = "#2ca02c"
+)
+
+# Determine y-axis range for both facets
+y_limits <- range(
+  c(model.random_effect.filtered_result$conf.low, model.random_effect.filtered_result$conf.high),
+  na.rm = TRUE
+)
+model.random_effect.y_limits <- c(0, ceiling(max(abs(y_limits))))  # Round up to next integer
+
+# Change the order of the x-axis labels
+model.random_effect.plot <- model.random_effect.filtered_result %>%
+  filter(category %in% c("Tense", "Aspirated")) %>%
+  ggplot(aes(x = term, y = estimate, color = term)) +  # Switched x and y
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +  # Adjusted for switched axes
+  scale_color_manual(values = model.random_effect.color_mape) +
+  scale_x_discrete(limits = c("F0", "VOT", "Intercept")) +  # Set x-axis order
+  scale_y_continuous(
+    limits = model.random_effect.y_limits, 
+    breaks = seq(0, model.random_effect.y_limits[2], by = 1),  # Integer breaks
+    oob = scales::squish
+  ) +  # Set consistent y-axis range with integer ticks
+  theme_minimal() +
+  labs(
+    x = "Random effect",
+    y = "SD",
+    title = "Bayesian Analysis Result - Random Effects",
+    subtitle = "Note: 'Vot' and 'F0' are scaled variables.",
+    caption = "Error bars represent 95% confidence intervals"
+  ) +
+  facet_wrap(~category) +  # Facet for separation
+  theme(legend.position = "none")  # Remove legend
+
+# Print the forest plot
+print(model.random_effect.plot)
+
+ggsave(
+  "../graphs/all_ages_bayesian_analysis_random_effect.png",
+  plot = model.random_effect.plot,
+  scale = 1,
+  width = 5,
+  height = 3,
+  dpi = "retina",
+)
+
+####################################
 # Rainbow Plot 
 ####################################
 data_for_rainbow_plot = plot_data_preprocessing(processed_data)
@@ -129,4 +206,6 @@ rainbow_plot = f0_vot_rainbow_plot(
   path = "../graphs/all_ages_three.png"
 )
 print(rainbow_plot)
+
+
 
