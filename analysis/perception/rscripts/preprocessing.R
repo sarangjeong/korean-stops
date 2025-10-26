@@ -79,12 +79,23 @@ basic_data_preprocessing <- function(
   
   # 2) kyungsang dialect: 3 (I manually checked the subject info data to identify KS speakers)
   # TODO: if I collect more data, do the manual checking again!
-  ks_speaker <- c("426")
+  ks_speaker <- c("426", "326", "635")
   stops <- stops[!(stops$subject %in% ks_speaker) ,]
   
-  # 3) more than 3 non-aspirated responses for vot >= 7 & f0 >= 7: 1 participant ("453")
-  stops[stops$f0 >= 7 & stops$vot >= 7 & stops$response!="asp",]$subject
-  stops <- stops[(stops$subject != 453) ,]
+  # 3) more than 3 non-aspirated responses for vot >= 7 & f0 >= 7
+  # Find subjects with more than 3 non-aspirated responses in high VOT & F0 region
+  problematic_responses <- stops[stops$f0 >= 7 & stops$vot >= 7 & stops$response != "asp", ]
+  subjects_to_exclude <- problematic_responses %>%
+    count(subject) %>%
+    filter(n > 3) %>%
+    pull(subject)
+  
+  if(length(subjects_to_exclude) > 0) {
+    cat("Excluding subjects with >3 non-aspirated responses for VOT>=7 & F0>=7:", paste(subjects_to_exclude, collapse=", "), "\n")
+    stops <- stops[!(stops$subject %in% subjects_to_exclude), ]
+  } else {
+    cat("No subjects found with >3 non-aspirated responses for VOT>=7 & F0>=7\n")
+  }
   
   # 4) not_heard == TRUE
   stops <- stops[(stops$not_heard == "False") ,]
