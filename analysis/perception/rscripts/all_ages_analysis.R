@@ -84,7 +84,7 @@ tidy_model_filtered <- tidy_model %>%
 
 # Determine y-axis range for both facets
 y_limits <- range(
-  c(tidy_model_filtered$conf.low, tidy_model_filtered$conf.high),
+  c(tidy_model_filtered$conf.low - 0.5, tidy_model_filtered$conf.high + 0.5),
   na.rm = TRUE
 )
 y_limits <- c(min(y_limits, -abs(y_limits)), max(y_limits, abs(y_limits)))  # Symmetric range
@@ -110,6 +110,14 @@ forest_plot <- tidy_model_filtered %>%
 
 # Print the forest plot
 print(forest_plot)
+ggsave(
+  "../graphs/all_ages_bayesian_analysis.png",
+  plot = forest_plot,
+  scale = 1,
+  width = 7,
+  height = 4,
+  dpi = "retina",
+)
 
 ####################################
 # Rainbow Plot 
@@ -121,3 +129,4 @@ rainbow_plot = f0_vot_rainbow_plot(
   path = "../graphs/all_ages_three.png"
 )
 print(rainbow_plot)
+
