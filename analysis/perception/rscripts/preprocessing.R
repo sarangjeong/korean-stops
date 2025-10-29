@@ -189,5 +189,9 @@ plot_data_preprocessing <- function(
   # cleanup temporary column
   stops_mean$max_val <- NULL
   
+  # Translate tense -> fortis in predominant column and T -> F in label column
+  stops_mean$predominant <- gsub("tense", "fortis", stops_mean$predominant)
+  stops_mean$label <- gsub("T", "F", stops_mean$label)
+  
   return(stops_mean)
 }

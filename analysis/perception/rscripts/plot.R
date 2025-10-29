@@ -80,7 +80,7 @@ f0_vot_rainbow_plot <- function(
     geom_text(aes(label =  paste(label, as.character(round(predominant_num * 100, 1))))) +
     labs(x = "VOT", y = "F0",
          title = title,
-         caption = "A = aspirated, L = lenis, T = tense") +
+         caption = "A = aspirated, L = lenis, F = fortis") +
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5),
           plot.caption = element_text(size = 12))
