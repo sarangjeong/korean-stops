@@ -28,13 +28,13 @@ processed_data <- basic_data_preprocessing(
 
 fit_brms_model <- function(data) {
   brm(
-    formula = response ~ svot + sf0,
+    formula = response ~ svot + sf0 + (1 + svot + sf0 | poa),
     data = data,
     family = categorical(link = "logit"),  # Multinomial logistic regression
     cores = 4,                             # Use multiple cores for faster computation
     threads = threading(6),
     iter = 2000,                           # Number of iterations (adjust as needed)
-    control = list(adapt_delta = 0.95)     # Helps convergence for complex models
+    control = list(adapt_delta = 0.95),     # Helps convergence for complex models
   )
 }
 
@@ -66,7 +66,7 @@ extract_coefficients_for_subject <- function(subject_id, subject_data) {
   tidy_model <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
   
   # Get age for this subject
-  subject_age <- unique(subject_data$age)
+  subject_age <- subject_data$age[1]  # Take the first value since all should be identical
   
   # Extract coefficients for aspirate and tense responses
   coeffs <- tidy_model %>%
@@ -127,6 +127,9 @@ coefficients_data <- coefficients_data %>%
 # Display summary
 print(summary(coefficients_data))
 
+output_path <- "../graphs/coefficients_data_no_random_effect.csv"
+write.csv(coefficients_data, output_path, row.names = FALSE)
+
 ####################################
 # Visualization: Age vs F0 Reliance
 ####################################
@@ -158,15 +161,9 @@ print(asp_f0_plot)
 
 # Save plot
 ggsave(
-  "../graphs/age_vs_asp_f0_reliance.png",
+  "../graphs/individual_with_random_effect.png",
   plot = asp_f0_plot,
   width = 8,
   height = 6,
   dpi = "retina"
 )
-
-# Statistical analysis
-cor_test_asp <- cor.test(coefficients_data$age, coefficients_data$asp_f0_reliance, use = "complete.obs")
-
-cat("Correlation between age and aspirate F0 reliance:\n")
-print(cor_test_asp)
