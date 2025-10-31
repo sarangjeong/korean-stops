@@ -142,7 +142,7 @@ asp_f0_plot <- coefficients_data %>%
   geom_smooth(method = "lm", se = TRUE, color = "#1f77b4", fill = "#1f77b4", alpha = 0.2) +
   labs(
     x = "Age",
-    y = "F0 Reliance for Aspirate Contrast",
+    y = "F0 Reliance for Aspirated Contrast",
     title = "Relationship between Age and F0 Reliance",
     subtitle = "F0 Reliance = |F0 coefficient| / (|F0 coefficient| + |VOT coefficient|)",
     caption = "Each point represents one participant"
