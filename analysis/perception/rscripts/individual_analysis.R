@@ -123,6 +123,16 @@ coefficients_data <- coefficients_data %>%
       NA
     )
   )
+
+# Calculate F0 reliance for aspirate contrast
+coefficients_data <- coefficients_data %>%
+  mutate(
+    fortis_f0_reliance = ifelse(
+      !is.na(tense_f0) & !is.na(tense_vot),
+      abs(tense_f0) / (abs(tense_f0) + abs(tense_vot)),
+      NA
+    )
+  )
   
 # Display summary
 print(summary(coefficients_data))
@@ -164,6 +174,41 @@ print(asp_f0_plot)
 ggsave(
   "../graphs/individual_without_random_effect.png",
   plot = asp_f0_plot,
+  width = 8,
+  height = 6,
+  dpi = "retina"
+)
+
+# Create scatter plot for fortis F0 reliance
+fortis_f0_plot <- coefficients_data %>%
+  filter(!is.na(fortis_f0_reliance)) %>%
+  ggplot(aes(x = age, y = fortis_f0_reliance)) +
+  geom_point(size = 3, alpha = 0.7, color = "#d62728") +
+  geom_smooth(method = "lm", se = TRUE, color = "#1f77b4", fill = "#1f77b4", alpha = 0.2) +
+  labs(
+    x = "Age",
+    y = "F0 Reliance for Fortis Contrast",
+    title = "Relationship between Age and F0 Reliance",
+    subtitle = "F0 Reliance = |F0 coefficient| / (|F0 coefficient| + |VOT coefficient|)",
+    caption = "Each point represents one participant"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  ) +
+  scale_x_reverse() +
+  scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2))
+
+# Print plot
+print(fortis_f0_plot)
+
+# Save plot
+ggsave(
+  "../graphs/individual_fortis_without_random_effect.png",
+  plot = fortis_f0_plot,
   width = 8,
   height = 6,
   dpi = "retina"
