@@ -28,7 +28,7 @@ processed_data <- basic_data_preprocessing(
 
 fit_brms_model <- function(data) {
   brm(
-    formula = response ~ svot + sf0 + (1 + svot + sf0 | poa),
+    formula = response ~ svot + sf0,
     data = data,
     family = categorical(link = "logit"),  # Multinomial logistic regression
     cores = 4,                             # Use multiple cores for faster computation
@@ -154,6 +154,7 @@ asp_f0_plot <- coefficients_data %>%
     axis.title = element_text(size = 12),
     axis.text = element_text(size = 10)
   ) +
+  scale_x_reverse() +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2))
 
 # Print plot
@@ -161,7 +162,7 @@ print(asp_f0_plot)
 
 # Save plot
 ggsave(
-  "../graphs/individual_with_random_effect.png",
+  "../graphs/individual_without_random_effect.png",
   plot = asp_f0_plot,
   width = 8,
   height = 6,
