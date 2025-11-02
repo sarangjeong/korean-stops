@@ -56,6 +56,7 @@ young_group.rainbow_plot = f0_vot_rainbow_plot(
   path = "../graphs/young_group_three.png"
 )
 print(young_group.rainbow_plot)
+browseURL("../graphs/young_group_three.png")
 
 middle_group.plot_data = plot_data_preprocessing(middle_group.data)
 
@@ -65,6 +66,7 @@ middle_group.rainbow_plot = f0_vot_rainbow_plot(
   path = "../graphs/middle_group_three.png"
 )
 print(middle_group.rainbow_plot)
+browseURL("../graphs/middle_group_three.png")
 
 old_group.plot_data = plot_data_preprocessing(old_group.data)
 old_group.rainbow_plot = f0_vot_rainbow_plot(
@@ -73,5 +75,6 @@ old_group.rainbow_plot = f0_vot_rainbow_plot(
   path = "../graphs/old_group_three.png"
 )
 print(old_group.rainbow_plot)
+browseURL("../graphs/old_group_three.png")
 
 

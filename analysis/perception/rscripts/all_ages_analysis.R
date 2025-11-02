@@ -208,7 +208,7 @@ rainbow_plot = f0_vot_rainbow_plot(
   title = "Mean responses across F0 and VOT continua",
   path = "../graphs/all_ages_three.png"
 )
-print(rainbow_plot)
+browseURL("../graphs/all_ages_three.png")
 
 
 

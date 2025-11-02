@@ -213,3 +213,13 @@ ggsave(
   height = 6,
   dpi = "retina"
 )
+
+sprintf("Minimum, Mean, and Maximum of Asperated f0 reliance: (%f / %f / %f)",
+       min(coefficients_data$asp_f0_reliance), mean(coefficients_data$asp_f0_reliance
+       ), max(coefficients_data$asp_f0_reliance
+                                                   ))
+
+sprintf("Minimum, Mean and Maximum of Fortis f0 reliance: (%f / %f / %f)",
+        min(coefficients_data$fortis_f0_reliance), mean(coefficients_data$fortis_f0_reliance
+        ), max(coefficients_data$fortis_f0_reliance
+        ))

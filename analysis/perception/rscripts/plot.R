@@ -83,12 +83,13 @@ f0_vot_rainbow_plot <- function(
          caption = "A = aspirated, L = lenis, F = fortis") +
     theme_minimal() +
     theme(plot.title = element_text(hjust = 0.5),
-          plot.caption = element_text(size = 12))
+          plot.caption = element_text(size = 12)) +
+    coord_fixed()
   saved_rainbow_plot = ggsave(
     path,
     plot = rainbow_plot,
     width = 10,
-    height = 6,
+    height = 10,
     scale = 1,
     dpi = "retina",
   )
