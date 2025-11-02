@@ -101,11 +101,14 @@ forest_plot <- tidy_model_filtered %>%
   labs(
     x = "Fixed effect",
     y = "Coefficient",
-    title = "Forest Plot: Tense vs. Aspirate Coefficients",
+    title = "Forest Plot: Fortis vs. Aspirated Coefficients",
     subtitle = "Note: 'Vot' and 'F0' are scaled variables.",
     caption = "Error bars represent 95% confidence intervals"
   ) +
-  facet_wrap(~category) +  # Facet for separation
+  facet_wrap(
+    ~category,
+    labeller = as_labeller(c("Tense" = "Fortis", "Aspirate" = "Aspirated"))
+  ) +
   theme(legend.position = "none")  # Remove legend
 
 # Print the forest plot
