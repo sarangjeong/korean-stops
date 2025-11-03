@@ -26,6 +26,12 @@ processed_data <- basic_data_preprocessing(
   subject_information_csv_path = "../data/korean_stops_perception_3_poa_all_ages-subject_information.csv"
 )
 
+
+sprintf("The number of `asp` rows: %d", nrow(processed_data[processed_data$response == "asp", ]))
+sprintf("The number of `tense` rows: %d", nrow(processed_data[processed_data$response == "tense", ]))
+sprintf("The number of `lenis` rows: %d", nrow(processed_data[processed_data$response == "lenis", ]))
+sprintf("The number of rows: %d", nrow(processed_data))
+
 fit_brms_model <- function(data) {
   brm(
     formula = response ~ svot * sage + sf0 * sage + (1 + svot + sf0 | subject),
