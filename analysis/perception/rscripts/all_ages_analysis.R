@@ -62,11 +62,12 @@ tidy_model <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
 
 # Define a color palette
 row_colors <- c(
-  "Vot:Age" = "#1f77b4",
-  "Vot" = "#ff7f0e",
-  "F0" = "#2ca02c",
-  "Age:F0" = "#d62728",
-  "Age" = "#9467bd"
+  "Age:VOT" = "#1f77b4",
+  "VOT" = "#ff7f0e",
+  "f0" = "#2ca02c",
+  "Age:f0" = "#d62728",
+  "Age" = "#9467bd",
+  "Insignificant" = "#808080"
 )
 
 # Filter out intercepts and prepare data
@@ -82,10 +83,18 @@ tidy_model_filtered <- tidy_model %>%
     term = str_replace_all(term, "_", "") %>%
       str_remove_all("mutense") %>%
       str_remove_all("muasp") %>%
-      str_replace_all("svot", "vot") %>%  # Remove "s" from "svot"
-      str_replace_all("sf0", "f0") %>%      # Remove "s" from "sf0"
-      str_replace_all("sage", "age"),      # Remove "s" from "sage"
-    term = str_to_title(term)  # Capitalize first letter of each word
+      str_replace_all("svot", "VOT") %>%  # VOT in uppercase
+      str_replace_all("sf0", "f0") %>%      # f0 in lowercase
+      str_replace_all("sage", "Age"),      # Age capitalized
+    # Reorder interaction terms to have Age first
+    term = case_when(
+      str_detect(term, "VOT:Age") ~ str_replace(term, "VOT:Age", "Age:VOT"),
+      str_detect(term, "f0:Age") ~ str_replace(term, "f0:Age", "Age:f0"),
+      TRUE ~ term
+    ),
+    # Mark insignificant coefficients
+    is_significant = (conf.low > 0 & conf.high > 0) | (conf.low < 0 & conf.high < 0),
+    term_color = ifelse(is_significant, term, "Insignificant")
   )
 
 # Determine y-axis range for both facets
@@ -98,24 +107,34 @@ y_limits <- c(min(y_limits, -abs(y_limits)), max(y_limits, abs(y_limits)))  # Sy
 # Combined forest plot with distinct row colors and fixed y-axis range
 forest_plot <- tidy_model_filtered %>%
   filter(category %in% c("Tense", "Aspirate")) %>%
-  ggplot(aes(x = term, y = estimate, color = term)) +  # Switched x and y
-  geom_point(size = 3) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +  # Adjusted for switched axes
+  ggplot(aes(x = term, y = estimate, color = term_color)) +
+  geom_hline(yintercept = 0, linewidth = 0.8, color = "grey80") +  # Thicker zero line in light grey
+  geom_point(size = 2) +  # Smaller points
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +
   scale_color_manual(values = row_colors) +
-  scale_y_continuous(limits = y_limits, oob = scales::squish) +  # Set consistent y-axis range
+  scale_x_discrete(limits = c("VOT", "f0", "Age", "Age:VOT", "Age:f0")) +  # Fixed order
+  scale_y_continuous(limits = y_limits, oob = scales::squish) +
   theme_minimal() +
   labs(
     x = "Fixed effect",
     y = "Coefficient",
     title = "Forest Plot: Fortis vs. Aspirated Coefficients",
-    subtitle = "Note: 'Vot' and 'F0' are scaled variables.",
+    subtitle = "Note: 'VOT' and 'f0' are scaled variables.",
     caption = "Error bars represent 95% confidence intervals"
   ) +
   facet_wrap(
     ~category,
     labeller = as_labeller(c("Tense" = "Fortis", "Aspirate" = "Aspirated"))
   ) +
-  theme(legend.position = "none")  # Remove legend
+  theme(
+    legend.position = "none",
+    text = element_text(size = 14),  # Larger font size
+    axis.title = element_text(size = 14),
+    axis.text = element_text(size = 12),
+    plot.title = element_text(size = 16),
+    plot.subtitle = element_text(size = 12),
+    strip.text = element_text(size = 14)
+  )
 
 # Print the forest plot
 print(forest_plot)
@@ -124,9 +143,10 @@ ggsave(
   plot = forest_plot,
   scale = 1,
   width = 7,
-  height = 4,
+  height = 6,  # Increased height
   dpi = "retina",
 )
+browseURL("../graphs/all_ages_bayesian_analysis.png")
 
 ####################################
 # Plot the random effects
