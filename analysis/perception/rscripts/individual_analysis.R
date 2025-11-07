@@ -147,13 +147,14 @@ write.csv(coefficients_data, output_path, row.names = FALSE)
 # Create scatter plot for aspirate F0 reliance
 asp_f0_plot <- coefficients_data %>%
   filter(!is.na(asp_f0_reliance)) %>%
-  ggplot(aes(x = age, y = asp_f0_reliance)) +
+  mutate(birth_year = 2024 - age) %>%
+  ggplot(aes(x = birth_year, y = asp_f0_reliance)) +
   geom_point(size = 3, alpha = 0.7, color = "#d62728") +
   geom_smooth(method = "lm", se = TRUE, color = "#1f77b4", fill = "#1f77b4", alpha = 0.2) +
   labs(
-    x = "Age",
+    x = "Year of Birth",
     y = "F0 Reliance for Aspirated Contrast",
-    title = "Relationship between Age and F0 Reliance",
+    title = "Relationship between YOB and F0 Reliance",
     subtitle = "F0 Reliance = |F0 coefficient| / (|F0 coefficient| + |VOT coefficient|)",
     caption = "Each point represents one participant"
   ) +
@@ -164,7 +165,6 @@ asp_f0_plot <- coefficients_data %>%
     axis.title = element_text(size = 12),
     axis.text = element_text(size = 10)
   ) +
-  scale_x_reverse() +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2))
 
 # Print plot
@@ -172,7 +172,7 @@ print(asp_f0_plot)
 
 # Save plot
 ggsave(
-  "../graphs/individual_without_random_effect.png",
+  "../graphs/individual_asp_without_random_effect.png",
   plot = asp_f0_plot,
   width = 8,
   height = 6,
@@ -182,13 +182,14 @@ ggsave(
 # Create scatter plot for fortis F0 reliance
 fortis_f0_plot <- coefficients_data %>%
   filter(!is.na(fortis_f0_reliance)) %>%
-  ggplot(aes(x = age, y = fortis_f0_reliance)) +
+  mutate(birth_year = 2024 - age) %>%
+  ggplot(aes(x = birth_year, y = fortis_f0_reliance)) +
   geom_point(size = 3, alpha = 0.7, color = "#d62728") +
   geom_smooth(method = "lm", se = TRUE, color = "#1f77b4", fill = "#1f77b4", alpha = 0.2) +
   labs(
-    x = "Age",
+    x = "Year of Birth",
     y = "F0 Reliance for Fortis Contrast",
-    title = "Relationship between Age and F0 Reliance",
+    title = "Relationship between YOB and F0 Reliance",
     subtitle = "F0 Reliance = |F0 coefficient| / (|F0 coefficient| + |VOT coefficient|)",
     caption = "Each point represents one participant"
   ) +
@@ -199,7 +200,6 @@ fortis_f0_plot <- coefficients_data %>%
     axis.title = element_text(size = 12),
     axis.text = element_text(size = 10)
   ) +
-  scale_x_reverse() +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, 0.2))
 
 # Print plot
@@ -215,9 +215,9 @@ ggsave(
 )
 
 sprintf("Minimum, Mean, and Maximum of Asperated f0 reliance: (%f / %f / %f)",
-       min(coefficients_data$asp_f0_reliance), mean(coefficients_data$asp_f0_reliance
-       ), max(coefficients_data$asp_f0_reliance
-                                                   ))
+        min(coefficients_data$asp_f0_reliance), mean(coefficients_data$asp_f0_reliance
+        ), max(coefficients_data$asp_f0_reliance
+        ))
 
 sprintf("Minimum, Mean and Maximum of Fortis f0 reliance: (%f / %f / %f)",
         min(coefficients_data$fortis_f0_reliance), mean(coefficients_data$fortis_f0_reliance
