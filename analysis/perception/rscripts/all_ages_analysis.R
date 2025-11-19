@@ -237,4 +237,79 @@ rainbow_plot = f0_vot_rainbow_plot(
 browseURL("../graphs/all_ages_three.png")
 
 
+library(bayesplot)
+
+# Caterpillar plot for all random effects
+# Get all parameter names that start with "r_subject"
+all_random_effects <- names(model$fit)[grepl("^r_subject__", names(model$fit))]
+
+# Separate by effect type and category
+intercept_pars <- all_random_effects[grepl("Intercept", all_random_effects)]
+vot_pars <- all_random_effects[grepl("svot", all_random_effects)]
+f0_pars <- all_random_effects[grepl("sf0", all_random_effects)]
+
+# Function to sort parameters by median (ascending order)
+sort_by_median <- function(pars) {
+  post <- as.matrix(model)
+  medians <- apply(post[, pars], 2, median)
+  pars[order(medians, decreasing = FALSE)]
+}
+
+# Sort parameters by median
+intercept_pars_sorted <- sort_by_median(intercept_pars)
+vot_pars_sorted <- sort_by_median(vot_pars)
+f0_pars_sorted <- sort_by_median(f0_pars)
+
+# Create caterpillar plots with sorted parameters
+p1 <- mcmc_intervals(model, pars = intercept_pars_sorted,
+                     prob = 0.5,
+                     prob_outer = 0.95,
+                     point_size = 0.3) +  # Very small points
+  coord_flip() +
+  labs(title = "Random Effects: Intercept",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p2 <- mcmc_intervals(model, pars = vot_pars_sorted,
+                     prob = 0.5,
+                     prob_outer = 0.95,
+                     point_size = 0.3) +  # Very small points
+  coord_flip() +
+  labs(title = "Random Effects: VOT",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p3 <- mcmc_intervals(model, pars = f0_pars_sorted,
+                     prob = 0.5,
+                     prob_outer = 0.95,
+                     point_size = 0.3) +  # Very small points
+  coord_flip() +
+  labs(title = "Random Effects: F0",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+# Combine plots horizontally
+combined_random_effects <- p1 | p2 | p3
+
+# Print and save
+print(combined_random_effects)
+
+ggsave(
+  "../graphs/all_ages_random_effects_caterpillar.png",
+  plot = combined_random_effects,
+  scale = 1,
+  width = 15,
+  height = 6,
+  dpi = "retina"
+)
+
+browseURL("../graphs/all_ages_random_effects_caterpillar.png")
+
+
 
