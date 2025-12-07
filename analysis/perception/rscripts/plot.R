@@ -2,13 +2,15 @@
 # Korean stop contrast, perception, young (pilot)
 # created by Sarang Jeong on June 6, 2021
 
+UNI_FILL_COLOR <- "#4C6FB5"
+
 f0_vot_asp_plot <- function(
     data, title, path    
 ) {
   asp_plot <- ggplot(data, aes(x = vot, f0)) +
     geom_tile(aes(fill = asp * 100)) +
     geom_text(aes(label = round(asp * 100, 1))) +
-    scale_fill_continuous(low = "white", high = "cyan", name = "aspirated %") +
+    scale_fill_continuous(low = "white", high = UNI_FILL_COLOR, name = "aspirated %") +
     labs(x = "VOT", y = "F0",
          title =title) +
     theme_minimal() +
@@ -30,7 +32,7 @@ f0_vot_tense_plot <- function(
   tense_plot <- ggplot(data, aes(vot, f0)) +
     geom_tile(aes(fill = tense * 100)) +
     geom_text(aes(label = round(tense * 100, 1))) +
-    scale_fill_continuous(low = "white", high = "yellow", name = "tense %") +
+    scale_fill_continuous(low = "white", high = UNI_FILL_COLOR, name = "tense %") +
     labs(x = "VOT", y = "F0",
          title =title) +
     theme_minimal() +
@@ -52,7 +54,7 @@ f0_vot_lenis_plot <- function(
   lenis_plot <- ggplot(data, aes(x = vot, f0)) +
     geom_tile(aes(fill = lenis * 100)) +
     geom_text(aes(label = round(lenis * 100, 1))) +
-    scale_fill_continuous(low = "white", high = "magenta", name = "lenis %", 
+    scale_fill_continuous(low = "white", high = UNI_FILL_COLOR, name = "lenis %", 
                           limits = c(0, 100), 
                           breaks = seq(0, 100, by=25)) +
     labs(x = "VOT", y = "F0",
@@ -74,10 +76,17 @@ f0_vot_rainbow_plot <- function(
   data, title, path
 ) {
   rainbow_plot <- ggplot(data, aes(vot, f0)) +
-    geom_tile(aes(fill = I(rgb(1 - asp, 1 - lenis, 1 - tense))))+
+    geom_tile(aes(fill = predominant_num)) +
     #               color = c("cyan", "yellow", "magenta"))) +
     # scale_color_manual(values = c("cyan", "yellow", "magenta")) +
     geom_text(aes(label =  paste(label, as.character(round(predominant_num * 100, 1))))) +
+    scale_fill_gradient(
+      low = "white",
+      high = brand_blue,
+      limits = c(0, 1),
+      name = "predominant %",
+      labels = scales::label_percent(accuracy = 1)
+    ) +
     labs(x = "VOT", y = "F0",
          title = title,
          caption = "A = aspirated, L = lenis, F = fortis") +

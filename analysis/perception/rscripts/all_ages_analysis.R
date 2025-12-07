@@ -255,10 +255,37 @@ sort_by_median <- function(pars) {
   pars[order(medians, decreasing = FALSE)]
 }
 
+# Function to sort parameters by age
+sort_by_age <- function(pars) {
+  # Extract subject IDs from parameter names
+  subject_ids <- as.numeric(gsub(".*\\[(\\d+),.*", "\\1", pars))
+  
+  # Get age information for each subject
+  age_data <- processed_data %>%
+    select(subject, age) %>%
+    distinct() %>%
+    mutate(subject = as.numeric(as.character(subject)))  # Convert factor to numeric
+  
+  # Create a data frame with parameter names and ages
+  par_age <- data.frame(
+    par = pars,
+    subject = subject_ids
+  ) %>%
+    left_join(age_data, by = "subject") %>%
+    arrange(age)
+  
+  return(par_age$par)
+}
+
 # Sort parameters by median
 intercept_pars_sorted <- sort_by_median(intercept_pars)
 vot_pars_sorted <- sort_by_median(vot_pars)
 f0_pars_sorted <- sort_by_median(f0_pars)
+
+# Sort parameters by age
+intercept_pars_age_sorted <- sort_by_age(intercept_pars)
+vot_pars_age_sorted <- sort_by_age(vot_pars)
+f0_pars_age_sorted <- sort_by_age(f0_pars)
 
 # Create caterpillar plots with sorted parameters
 p1 <- mcmc_intervals(model, pars = intercept_pars_sorted,
@@ -310,6 +337,57 @@ ggsave(
 )
 
 browseURL("../graphs/all_ages_random_effects_caterpillar.png")
+
+# Create caterpillar plots sorted by age
+p1_age <- mcmc_intervals(model, pars = intercept_pars_age_sorted,
+                         prob = 0.5,
+                         prob_outer = 0.95,
+                         point_size = 0.3) +
+  coord_flip() +
+  labs(title = "Random Effects: Intercept (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p2_age <- mcmc_intervals(model, pars = vot_pars_age_sorted,
+                         prob = 0.5,
+                         prob_outer = 0.95,
+                         point_size = 0.3) +
+  coord_flip() +
+  labs(title = "Random Effects: VOT (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p3_age <- mcmc_intervals(model, pars = f0_pars_age_sorted,
+                         prob = 0.5,
+                         prob_outer = 0.95,
+                         point_size = 0.3) +
+  coord_flip() +
+  labs(title = "Random Effects: F0 (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+# Combine age-sorted plots
+combined_random_effects_age <- p1_age | p2_age | p3_age
+
+# Print and save
+print(combined_random_effects_age)
+
+ggsave(
+  "../graphs/all_ages_random_effects_caterpillar_by_age.png",
+  plot = combined_random_effects_age,
+  scale = 1,
+  width = 15,
+  height = 6,
+  dpi = "retina"
+)
+
+browseURL("../graphs/all_ages_random_effects_caterpillar_by_age.png")
 
 
 
