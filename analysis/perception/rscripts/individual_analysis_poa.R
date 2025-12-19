@@ -65,25 +65,29 @@ extract_coefficients_for_subject <- function(subject_id, subject_data) {
   # Extract coefficients
   tidy_model <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
   
-  # Get age for this subject
+  # Get age and gender for this subject
   subject_age <- subject_data$age[1]  # Take the first value since all should be identical
+  subject_gender <- subject_data$gender[1]  # Get gender information
   
   # Extract coefficients for aspirate and tense responses
   coeffs <- tidy_model %>%
-    filter(!str_detect(term, "Intercept")) %>%
     mutate(
       category = case_when(
         str_detect(term, "mutense") ~ "tense",
         str_detect(term, "muasp") ~ "asp",
+        str_detect(term, "Intercept") ~ "intercept",
         TRUE ~ "other"
       ),
       predictor = case_when(
         str_detect(term, "svot") ~ "vot",
         str_detect(term, "sf0") ~ "f0",
+        str_detect(term, "poador") ~ "poa_dor",
+        str_detect(term, "poalab") ~ "poa_lab",
+        str_detect(term, "Intercept") ~ "intercept",
         TRUE ~ "other"
       )
     ) %>%
-    filter(category %in% c("asp", "tense"), predictor %in% c("vot", "f0")) %>%
+    filter(category %in% c("asp", "tense", "intercept")) %>%
     select(category, predictor, estimate) %>%
     pivot_wider(names_from = c(category, predictor), values_from = estimate, names_sep = "_")
   
@@ -91,10 +95,17 @@ extract_coefficients_for_subject <- function(subject_id, subject_data) {
   result <- data.frame(
     subject = subject_id,
     age = subject_age,
+    gender = subject_gender,
     asp_vot = ifelse("asp_vot" %in% names(coeffs), coeffs$asp_vot, NA),
     asp_f0 = ifelse("asp_f0" %in% names(coeffs), coeffs$asp_f0, NA),
+    asp_poa_dor = ifelse("asp_poa_dor" %in% names(coeffs), coeffs$asp_poa_dor, NA),
+    asp_poa_lab = ifelse("asp_poa_lab" %in% names(coeffs), coeffs$asp_poa_lab, NA),
+    asp_intercept = ifelse("asp_intercept" %in% names(coeffs), coeffs$asp_intercept, NA),
     tense_vot = ifelse("tense_vot" %in% names(coeffs), coeffs$tense_vot, NA),
-    tense_f0 = ifelse("tense_f0" %in% names(coeffs), coeffs$tense_f0, NA)
+    tense_f0 = ifelse("tense_f0" %in% names(coeffs), coeffs$tense_f0, NA),
+    tense_poa_dor = ifelse("tense_poa_dor" %in% names(coeffs), coeffs$tense_poa_dor, NA),
+    tense_poa_lab = ifelse("tense_poa_lab" %in% names(coeffs), coeffs$tense_poa_lab, NA),
+    tense_intercept = ifelse("tense_intercept" %in% names(coeffs), coeffs$tense_intercept, NA)
   )
   
   return(result)
@@ -223,3 +234,277 @@ sprintf("Minimum, Mean and Maximum of Fortis f0 reliance: (%f / %f / %f)",
         min(coefficients_data$fortis_f0_reliance), mean(coefficients_data$fortis_f0_reliance
         ), max(coefficients_data$fortis_f0_reliance
         ))
+
+####################################
+# Visualization: Coefficients by Birth Year
+####################################
+
+# Prepare data for aspirate coefficients plot
+asp_coef_data <- coefficients_data %>%
+  mutate(birth_year = 2024 - age) %>%
+  select(birth_year, asp_vot, asp_f0, asp_poa_dor, asp_poa_lab, asp_intercept) %>%
+  pivot_longer(
+    cols = c(asp_vot, asp_f0, asp_poa_dor, asp_poa_lab, asp_intercept),
+    names_to = "coefficient",
+    values_to = "value"
+  ) %>%
+  mutate(
+    coefficient = factor(
+      coefficient,
+      levels = c("asp_vot", "asp_f0", "asp_poa_dor", "asp_poa_lab", "asp_intercept"),
+      labels = c("VOT", "F0", "POA-Dorsal", "POA-Labial", "Intercept")
+    )
+  ) %>%
+  filter(!is.na(value))
+
+# Create aspirate coefficients plot
+asp_coef_plot <- ggplot(asp_coef_data, aes(x = birth_year, y = value, color = coefficient)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  labs(
+    x = "Year of Birth",
+    y = "Coefficient Value",
+    title = "Aspirated Contrast: Coefficients by Year of Birth",
+    color = "Coefficient",
+    caption = "Each point represents one participant"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  ) +
+  scale_color_manual(values = c(
+    "VOT" = "#1f77b4",
+    "F0" = "#ff7f0e",
+    "POA-Dorsal" = "#2ca02c",
+    "POA-Labial" = "#9467bd",
+    "Intercept" = "#d62728"
+  ))
+
+# Print plot
+print(asp_coef_plot)
+
+# Save plot
+ggsave(
+  "../graphs/individual_poa_asp_coefficients.png",
+  plot = asp_coef_plot,
+  width = 10,
+  height = 6,
+  dpi = "retina"
+)
+
+# Create gender-separated aspirate coefficients plots
+asp_coef_data_with_gender <- asp_coef_data %>%
+  left_join(coefficients_data %>% select(birth_year = age, gender) %>% mutate(birth_year = 2024 - birth_year), by = "birth_year")
+
+asp_coef_plot_male <- asp_coef_data_with_gender %>%
+  filter(gender == "Male") %>%
+  ggplot(aes(x = birth_year, y = value, color = coefficient)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  labs(
+    x = "Year of Birth",
+    y = "Coefficient Value",
+    title = "Aspirated Contrast: Coefficients by Year of Birth (Male)",
+    color = "Coefficient",
+    caption = "Each point represents one male participant"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  ) +
+  scale_color_manual(values = c(
+    "VOT" = "#1f77b4",
+    "F0" = "#ff7f0e",
+    "POA-Dorsal" = "#2ca02c",
+    "POA-Labial" = "#9467bd",
+    "Intercept" = "#d62728"
+  ))
+
+asp_coef_plot_female <- asp_coef_data_with_gender %>%
+  filter(gender == "Female") %>%
+  ggplot(aes(x = birth_year, y = value, color = coefficient)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  labs(
+    x = "Year of Birth",
+    y = "Coefficient Value",
+    title = "Aspirated Contrast: Coefficients by Year of Birth (Female)",
+    color = "Coefficient",
+    caption = "Each point represents one female participant"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  ) +
+  scale_color_manual(values = c(
+    "VOT" = "#1f77b4",
+    "F0" = "#ff7f0e",
+    "POA-Dorsal" = "#2ca02c",
+    "POA-Labial" = "#9467bd",
+    "Intercept" = "#d62728"
+  ))
+
+# Print plots
+print(asp_coef_plot_male)
+print(asp_coef_plot_female)
+
+# Save plots
+ggsave(
+  "../graphs/individual_poa_asp_coefficients_male.png",
+  plot = asp_coef_plot_male,
+  width = 10,
+  height = 6,
+  dpi = "retina"
+)
+
+ggsave(
+  "../graphs/individual_poa_asp_coefficients_female.png",
+  plot = asp_coef_plot_female,
+  width = 10,
+  height = 6,
+  dpi = "retina"
+)
+
+# Prepare data for fortis coefficients plot
+fortis_coef_data <- coefficients_data %>%
+  mutate(birth_year = 2024 - age) %>%
+  select(birth_year, tense_vot, tense_f0, tense_poa_dor, tense_poa_lab, tense_intercept) %>%
+  pivot_longer(
+    cols = c(tense_vot, tense_f0, tense_poa_dor, tense_poa_lab, tense_intercept),
+    names_to = "coefficient",
+    values_to = "value"
+  ) %>%
+  mutate(
+    coefficient = factor(
+      coefficient,
+      levels = c("tense_vot", "tense_f0", "tense_poa_dor", "tense_poa_lab", "tense_intercept"),
+      labels = c("VOT", "F0", "POA-Dorsal", "POA-Labial", "Intercept")
+    )
+  ) %>%
+  filter(!is.na(value))
+
+# Create fortis coefficients plot
+fortis_coef_plot <- ggplot(fortis_coef_data, aes(x = birth_year, y = value, color = coefficient)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  labs(
+    x = "Year of Birth",
+    y = "Coefficient Value",
+    title = "Fortis Contrast: Coefficients by Year of Birth",
+    color = "Coefficient",
+    caption = "Each point represents one participant"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  ) +
+  scale_color_manual(values = c(
+    "VOT" = "#1f77b4",
+    "F0" = "#ff7f0e",
+    "POA-Dorsal" = "#2ca02c",
+    "POA-Labial" = "#9467bd",
+    "Intercept" = "#d62728"
+  ))
+
+# Print plot
+print(fortis_coef_plot)
+
+# Save plot
+ggsave(
+  "../graphs/individual_poa_fortis_coefficients.png",
+  plot = fortis_coef_plot,
+  width = 10,
+  height = 6,
+  dpi = "retina"
+)
+
+# Create gender-separated fortis coefficients plots
+fortis_coef_data_with_gender <- fortis_coef_data %>%
+  left_join(coefficients_data %>% select(birth_year = age, gender) %>% mutate(birth_year = 2024 - birth_year), by = "birth_year")
+
+fortis_coef_plot_male <- fortis_coef_data_with_gender %>%
+  filter(gender == "Male") %>%
+  ggplot(aes(x = birth_year, y = value, color = coefficient)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  labs(
+    x = "Year of Birth",
+    y = "Coefficient Value",
+    title = "Fortis Contrast: Coefficients by Year of Birth (Male)",
+    color = "Coefficient",
+    caption = "Each point represents one male participant"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  ) +
+  scale_color_manual(values = c(
+    "VOT" = "#1f77b4",
+    "F0" = "#ff7f0e",
+    "POA-Dorsal" = "#2ca02c",
+    "POA-Labial" = "#9467bd",
+    "Intercept" = "#d62728"
+  ))
+
+fortis_coef_plot_female <- fortis_coef_data_with_gender %>%
+  filter(gender == "Female") %>%
+  ggplot(aes(x = birth_year, y = value, color = coefficient)) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.2) +
+  labs(
+    x = "Year of Birth",
+    y = "Coefficient Value",
+    title = "Fortis Contrast: Coefficients by Year of Birth (Female)",
+    color = "Coefficient",
+    caption = "Each point represents one female participant"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 14, face = "bold"),
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    legend.position = "right"
+  ) +
+  scale_color_manual(values = c(
+    "VOT" = "#1f77b4",
+    "F0" = "#ff7f0e",
+    "POA-Dorsal" = "#2ca02c",
+    "POA-Labial" = "#9467bd",
+    "Intercept" = "#d62728"
+  ))
+
+# Print plots
+print(fortis_coef_plot_male)
+print(fortis_coef_plot_female)
+
+# Save plots
+ggsave(
+  "../graphs/individual_poa_fortis_coefficients_male.png",
+  plot = fortis_coef_plot_male,
+  width = 10,
+  height = 6,
+  dpi = "retina"
+)
+
+ggsave(
+  "../graphs/individual_poa_fortis_coefficients_female.png",
+  plot = fortis_coef_plot_female,
+  width = 10,
+  height = 6,
+  dpi = "retina"
+)

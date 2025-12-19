@@ -69,16 +69,13 @@ prior_summary(model)
 tidy_model <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
 summary(tidy_model)
 
-# Define a color palette
-row_colors <- c(
-  "Age:VOT" = "#1f77b4",
-  "VOT" = "#ff7f0e",
-  "f0" = "#2ca02c",
-  "Age:f0" = "#d62728",
-  "Labial" = "#9467bd",
-  "Dorsal" = "pink",
-  "Insignificant" = "#808080"
-)
+# Calculate p_direction for filtering
+pd_results <- p_direction(model)
+pd_df <- as.data.frame(pd_results)
+
+# Remove "b_" prefix from Parameter to match tidy_model's term format
+pd_df <- pd_df %>%
+  mutate(Parameter = str_remove(Parameter, "^b_"))
 
 # Filter out intercepts and prepare data
 tidy_model_filtered <- tidy_model %>%
@@ -96,63 +93,100 @@ tidy_model_filtered <- tidy_model %>%
       str_replace_all("svot", "VOT") %>%
       str_replace_all("sf0", "f0") %>%
       str_replace_all("sage", "Age") %>%
-      str_replace_all("genderMale", "Gender") %>%
+      str_replace_all("genderMale", "Male") %>%
       str_replace_all("poalab", "Labial") %>%
       str_replace_all("poador", "Dorsal"),
     term = case_when(
-      str_detect(term, "VOT:Age:Gender") ~ str_replace(term, "VOT:Age:Gender", "Age:VOT:Gender"),
-      str_detect(term, "f0:Age:Gender") ~ str_replace(term, "f0:Age:Gender", "Age:f0:Gender"),
+      str_detect(term, "VOT:Age:Male") ~ str_replace(term, "VOT:Age:Male", "Age:VOT:Male"),
+      str_detect(term, "f0:Age:Male") ~ str_replace(term, "f0:Age:Male", "Age:f0:Male"),
       str_detect(term, "VOT:Age") ~ str_replace(term, "VOT:Age", "Age:VOT"),
       str_detect(term, "f0:Age") ~ str_replace(term, "f0:Age", "Age:f0"),
-      str_detect(term, "VOT:Gender") ~ str_replace(term, "VOT:Gender", "Gender:VOT"),
-      str_detect(term, "f0:Gender") ~ str_replace(term, "f0:Gender", "Gender:f0"),
+      str_detect(term, "VOT:Male") ~ str_replace(term, "VOT:Male", "Male:VOT"),
+      str_detect(term, "f0:Male") ~ str_replace(term, "f0:Male", "Male:f0"),
       TRUE ~ term
-    ),
-    is_significant = (conf.low > 0 & conf.high > 0) | (conf.low < 0 & conf.high < 0),
-    term_color = if_else(is_significant, term, "Insignificant")
-  )
+    )
+  ) %>%
+  left_join(pd_df %>% select(Parameter, pd), by = c("raw_term" = "Parameter")) %>%
+  filter(pd >= 0.90)  # Filter by p_direction >= 90%
 
-term_levels <- c("VOT", "f0", "Labial", "Dorsal", "Gender", "Age:VOT", "Age:f0", "Gender:VOT", "Gender:f0", "Age:VOT:Gender", "Age:f0:Gender")
+term_levels <- c("VOT", "f0", "Labial", "Dorsal", "Male", "Age:VOT", "Age:f0", "Male:VOT", "Male:f0", "Age:VOT:Male", "Age:f0:Male")
 term_levels <- term_levels[term_levels %in% tidy_model_filtered$term]
 if (length(term_levels) == 0) {
   term_levels <- unique(tidy_model_filtered$term)
 }
 
-y_limits <- range(
-  c(tidy_model_filtered$conf.low - 0.5, tidy_model_filtered$conf.high + 0.5),
-  na.rm = TRUE
-)
-y_limits <- c(min(y_limits, -abs(y_limits)), max(y_limits, abs(y_limits)))
+# Prepare data for Aspirated/Lenis and Fortis/Lenis
+aspirated_data <- tidy_model_filtered %>%
+  filter(category == "Aspirate") %>%
+  mutate(comparison = "Aspirated/Lenis")
 
-forest_plot <- tidy_model_filtered %>%
-  filter(category %in% c("Tense", "Aspirate")) %>%
-  ggplot(aes(x = term, y = estimate, color = term_color)) +
+fortis_data <- tidy_model_filtered %>%
+  filter(category == "Tense") %>%
+  mutate(comparison = "Fortis/Lenis")
+
+# Calculate Aspirated/Fortis difference (Aspirated - Fortis)
+difference_data <- tidy_model_filtered %>%
+  select(term, category, estimate, conf.low, conf.high, raw_term, pd) %>%
+  pivot_wider(
+    names_from = category,
+    values_from = c(estimate, conf.low, conf.high, raw_term, pd)
+  ) %>%
+  drop_na(estimate_Aspirate, estimate_Tense) %>%
+  mutate(
+    estimate = estimate_Aspirate - estimate_Tense,
+    conf.low = conf.low_Aspirate - conf.high_Tense,  # Conservative CI
+    conf.high = conf.high_Aspirate - conf.low_Tense,
+    comparison = "Aspirated/Fortis",
+    category = "Difference",
+    raw_term = NA_character_,
+    pd = pmin(pd_Aspirate, pd_Tense)  # Take minimum pd for difference
+  ) %>%
+  select(term, estimate, conf.low, conf.high, comparison, category, raw_term, pd)
+
+# Combine all comparisons
+forest_plot_data <- bind_rows(aspirated_data, fortis_data, difference_data) %>%
+  mutate(
+    comparison = factor(comparison, levels = c("Aspirated/Fortis", "Aspirated/Lenis", "Fortis/Lenis")),
+    term = factor(term, levels = term_levels)
+  ) %>%
+  filter(!is.na(term))
+
+# Define comparison labels
+comparison_labels <- c(
+  "Aspirated/Fortis" = "Aspirated/Fortis (K)",
+  "Aspirated/Lenis" = "Aspirated/Lenis (K)",
+  "Fortis/Lenis" = "Fortis/Lenis (K)"
+)
+
+forest_plot <- forest_plot_data %>%
+  ggplot(aes(x = term, y = estimate)) +
   geom_hline(yintercept = 0, linewidth = 0.8, color = "grey80") +
-  geom_point(size = 2) +
-  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.2) +
-  scale_color_manual(values = row_colors) +
-  scale_x_discrete(limits = term_levels) +
-  scale_y_continuous(limits = y_limits, oob = scales::squish) +
+  geom_point(size = 2.5) +
+  geom_errorbar(aes(ymin = conf.low, ymax = conf.high), width = 0.3) +
+  facet_wrap(
+    ~comparison,
+    scales = "free",  # Free scales for better visibility
+    labeller = as_labeller(comparison_labels)
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0.1, 0.1))) +
   theme_minimal() +
   labs(
     x = "Fixed effect",
     y = "Coefficient",
-    title = "Forest Plot: Fortis vs. Aspirated Coefficients",
-    subtitle = "Note: 'VOT' and 'f0' are scaled variables.",
-    caption = "Error bars represent 95% confidence intervals"
-  ) +
-  facet_wrap(
-    ~category,
-    labeller = as_labeller(c("Tense" = "Fortis", "Aspirate" = "Aspirated"))
+    title = "Forest Plot: Stop Category Contrasts (p_direction ≥ 90%)",
+    subtitle = "Note: 'VOT' and 'f0' are scaled variables. Error bars represent 95% confidence intervals.",
+    caption = "Only coefficients with p_direction ≥ 90% are shown. Scales vary by panel for better visibility."
   ) +
   theme(
     legend.position = "none",
     text = element_text(size = 14),
     axis.title = element_text(size = 14),
     axis.text = element_text(size = 12),
+    axis.text.x = element_text(angle = 45, hjust = 1),
     plot.title = element_text(size = 16),
-    plot.subtitle = element_text(size = 12),
-    strip.text = element_text(size = 14)
+    plot.subtitle = element_text(size = 11),
+    strip.text = element_text(size = 14, face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, linewidth = 0.8)
   )
 
 print(forest_plot)
@@ -235,7 +269,7 @@ difference_draws <- difference_lookup %>%
 posterior_draws_long <- bind_rows(aspirated_draws, fortis_draws, difference_draws) %>%
   filter(!is.na(term)) %>%
   mutate(
-    comparison = factor(comparison, levels = c("Aspirated/Lenis", "Fortis/Lenis", "Aspirated/Fortis"))
+    comparison = factor(comparison, levels = c("Aspirated/Fortis", "Aspirated/Lenis", "Fortis/Lenis"))
   )
 
 comparison_labels <- c(
@@ -249,13 +283,13 @@ term_display <- c(
   "f0" = "f0",
   "Labial" = "Labial",
   "Dorsal" = "Dorsal",
-  "Male" = "Gender",
+  "Male" = "Male",
   "Age:VOT" = "Age:VOT",
   "Age:f0" = "Age:f0",
-  "Male:VOT" = "Gender:VOT",
-  "Male:f0" = "Gender:f0",
-  "Age:VOT:Male" = "Age:VOT:Gender",
-  "Age:f0:Male" = "Age:f0:Gender"
+  "Male:VOT" = "Male:VOT",
+  "Male:f0" = "Male:f0",
+  "Age:VOT:Male" = "Age:VOT:Male",
+  "Age:f0:Male" = "Age:f0:Male"
 )
 
 posterior_box_summary <- posterior_draws_long %>%
@@ -395,7 +429,7 @@ if (nrow(difference_lookup_filtered) > 0) {
 posterior_draws_filtered_long <- bind_rows(aspirated_draws_filtered, fortis_draws_filtered, difference_draws_filtered) %>%
   filter(!is.na(term)) %>%
   mutate(
-    comparison = factor(comparison, levels = c("Aspirated/Lenis", "Fortis/Lenis", "Aspirated/Fortis"))
+    comparison = factor(comparison, levels = c("Aspirated/Fortis", "Aspirated/Lenis", "Fortis/Lenis"))
   )
 
 if (nrow(posterior_draws_filtered_long) > 0) {
@@ -552,7 +586,7 @@ rainbow_plot <- f0_vot_rainbow_plot(
   path = "../graphs/all_ages_three.png"
 )
 
-browseURL("../graphs/all_ages_three.png")
+# browseURL("../graphs/all_ages_three.png")
 
 ####################################
 # Observed vs. Predicted Probabilities
@@ -721,7 +755,7 @@ ggsave(
   dpi = "retina"
 )
 
-browseURL("../graphs/all_ages_observed_vs_predicted_probabilities.png")
+# browseURL("../graphs/all_ages_observed_vs_predicted_probabilities.png")
 
 ####################################
 # Observed vs. Predicted Probabilities (F0 Binned)
@@ -792,7 +826,7 @@ observed_vs_predicted_plot_binned <- ggplot() +
   facet_wrap(~response_label, nrow = 1) +
   scale_color_manual(
     name = "F0 bin",
-    values = c("F0 1-2" = "#0072B2", "F0 3-4" = "#E69F00", "F0 5-6" = "#009E73", "F0 7-8" = "#56B4E9")
+    values = c("F0 1-2" = "#dddddd", "F0 3-4" = "#555555", "F0 5-6" = "#999999", "F0 7-8" = "#000000")
   ) +
   scale_linetype_manual(name = "", values = c("Predicted" = "solid")) +
   scale_shape_manual(name = "", values = c("Observed" = 16)) +
@@ -828,6 +862,285 @@ ggsave(
   dpi = "retina"
 )
 
-browseURL("../graphs/all_ages_observed_vs_predicted_probabilities_binned.png")
+# browseURL("../graphs/all_ages_observed_vs_predicted_probabilities_binned.png")
+
+####################################
+# Caterpillar plots for random effects
+####################################
+library(bayesplot)
+
+# Get all parameter names that start with "r_subject"
+all_random_effects <- names(model$fit)[grepl("^r_subject__", names(model$fit))]
+
+# Separate by effect type and category (Fortis and Aspirated)
+fortis_pars <- all_random_effects[grepl("mutense", all_random_effects)]
+aspirated_pars <- all_random_effects[grepl("muasp", all_random_effects)]
+
+# Further separate by effect type within each category
+intercept_fortis <- fortis_pars[grepl("Intercept", fortis_pars)]
+vot_fortis <- fortis_pars[grepl("svot", fortis_pars)]
+f0_fortis <- fortis_pars[grepl("sf0", fortis_pars)]
+
+intercept_aspirated <- aspirated_pars[grepl("Intercept", aspirated_pars)]
+vot_aspirated <- aspirated_pars[grepl("svot", aspirated_pars)]
+f0_aspirated <- aspirated_pars[grepl("sf0", aspirated_pars)]
+
+# Function to sort parameters by median (ascending order)
+sort_by_median <- function(pars) {
+  post <- as.matrix(model)
+  medians <- apply(post[, pars], 2, median)
+  pars[order(medians, decreasing = FALSE)]
+}
+
+# Function to sort parameters by age
+sort_by_age <- function(pars) {
+  # Extract subject IDs from parameter names
+  subject_ids <- as.numeric(gsub(".*\\[(\\d+),.*", "\\1", pars))
+  
+  # Get age information for each subject
+  age_data <- processed_data %>%
+    select(subject, age) %>%
+    distinct() %>%
+    mutate(subject = as.numeric(as.character(subject)))  # Convert factor to numeric
+  
+  # Create a data frame with parameter names and ages
+  par_age <- data.frame(
+    par = pars,
+    subject = subject_ids
+  ) %>%
+    left_join(age_data, by = "subject") %>%
+    arrange(age)
+  
+  return(par_age$par)
+}
+
+# Sort parameters by median for Fortis
+intercept_fortis_sorted <- sort_by_median(intercept_fortis)
+vot_fortis_sorted <- sort_by_median(vot_fortis)
+f0_fortis_sorted <- sort_by_median(f0_fortis)
+
+# Sort parameters by median for Aspirated
+intercept_aspirated_sorted <- sort_by_median(intercept_aspirated)
+vot_aspirated_sorted <- sort_by_median(vot_aspirated)
+f0_aspirated_sorted <- sort_by_median(f0_aspirated)
+
+# Sort parameters by age for Fortis
+intercept_fortis_age_sorted <- sort_by_age(intercept_fortis)
+vot_fortis_age_sorted <- sort_by_age(vot_fortis)
+f0_fortis_age_sorted <- sort_by_age(f0_fortis)
+
+# Sort parameters by age for Aspirated
+intercept_aspirated_age_sorted <- sort_by_age(intercept_aspirated)
+vot_aspirated_age_sorted <- sort_by_age(vot_aspirated)
+f0_aspirated_age_sorted <- sort_by_age(f0_aspirated)
+
+# Calculate common x-axis range for all random effects
+post <- as.matrix(model)
+all_pars <- c(fortis_pars, aspirated_pars)
+all_values <- as.vector(post[, all_pars])
+common_xlim <- range(all_values, na.rm = TRUE)
+common_xlim <- c(floor(common_xlim[1]), ceiling(common_xlim[2]))
+
+####################################
+# Fortis caterpillar plots (median sorted)
+####################################
+p1_fortis <- mcmc_intervals(model, pars = intercept_fortis_sorted,
+                            prob = 0.5,
+                            prob_outer = 0.95,
+                            point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Fortis: Intercept",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p2_fortis <- mcmc_intervals(model, pars = vot_fortis_sorted,
+                            prob = 0.5,
+                            prob_outer = 0.95,
+                            point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Fortis: VOT",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p3_fortis <- mcmc_intervals(model, pars = f0_fortis_sorted,
+                            prob = 0.5,
+                            prob_outer = 0.95,
+                            point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Fortis: F0",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+combined_fortis <- p1_fortis | p2_fortis | p3_fortis
+
+print(combined_fortis)
+
+ggsave(
+  "../graphs/all_ages_random_effects_caterpillar_fortis_gender.png",
+  plot = combined_fortis,
+  scale = 1,
+  width = 15,
+  height = 6,
+  dpi = "retina"
+)
+
+####################################
+# Aspirated caterpillar plots (median sorted)
+####################################
+p1_aspirated <- mcmc_intervals(model, pars = intercept_aspirated_sorted,
+                               prob = 0.5,
+                               prob_outer = 0.95,
+                               point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Aspirated: Intercept",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p2_aspirated <- mcmc_intervals(model, pars = vot_aspirated_sorted,
+                               prob = 0.5,
+                               prob_outer = 0.95,
+                               point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Aspirated: VOT",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p3_aspirated <- mcmc_intervals(model, pars = f0_aspirated_sorted,
+                               prob = 0.5,
+                               prob_outer = 0.95,
+                               point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Aspirated: F0",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+combined_aspirated <- p1_aspirated | p2_aspirated | p3_aspirated
+
+print(combined_aspirated)
+
+ggsave(
+  "../graphs/all_ages_random_effects_caterpillar_aspirated_gender.png",
+  plot = combined_aspirated,
+  scale = 1,
+  width = 15,
+  height = 6,
+  dpi = "retina"
+)
+
+#browseURL("../graphs/all_ages_random_effects_caterpillar_fortis_gender.png")
+#browseURL("../graphs/all_ages_random_effects_caterpillar_aspirated_gender.png")
+
+####################################
+# Fortis caterpillar plots (age sorted)
+####################################
+p1_fortis_age <- mcmc_intervals(model, pars = intercept_fortis_age_sorted,
+                                prob = 0.5,
+                                prob_outer = 0.95,
+                                point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Fortis: Intercept (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p2_fortis_age <- mcmc_intervals(model, pars = vot_fortis_age_sorted,
+                                prob = 0.5,
+                                prob_outer = 0.95,
+                                point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Fortis: VOT (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p3_fortis_age <- mcmc_intervals(model, pars = f0_fortis_age_sorted,
+                                prob = 0.5,
+                                prob_outer = 0.95,
+                                point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Fortis: F0 (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+combined_fortis_age <- p1_fortis_age | p2_fortis_age | p3_fortis_age
+
+print(combined_fortis_age)
+
+ggsave(
+  "../graphs/all_ages_random_effects_caterpillar_by_age_fortis_gender.png",
+  plot = combined_fortis_age,
+  scale = 1,
+  width = 15,
+  height = 6,
+  dpi = "retina"
+)
+
+####################################
+# Aspirated caterpillar plots (age sorted)
+####################################
+p1_aspirated_age <- mcmc_intervals(model, pars = intercept_aspirated_age_sorted,
+                                   prob = 0.5,
+                                   prob_outer = 0.95,
+                                   point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Aspirated: Intercept (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p2_aspirated_age <- mcmc_intervals(model, pars = vot_aspirated_age_sorted,
+                                   prob = 0.5,
+                                   prob_outer = 0.95,
+                                   point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Aspirated: VOT (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+p3_aspirated_age <- mcmc_intervals(model, pars = f0_aspirated_age_sorted,
+                                   prob = 0.5,
+                                   prob_outer = 0.95,
+                                   point_size = 0.3) +
+  coord_flip(xlim = common_xlim) +
+  labs(title = "Aspirated: F0 (by Age)",
+       x = "Parameter estimate",
+       y = "Participant") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+combined_aspirated_age <- p1_aspirated_age | p2_aspirated_age | p3_aspirated_age
+
+print(combined_aspirated_age)
+
+ggsave(
+  "../graphs/all_ages_random_effects_caterpillar_by_age_aspirated_gender.png",
+  plot = combined_aspirated_age,
+  scale = 1,
+  width = 15,
+  height = 6,
+  dpi = "retina"
+)
+
+#browseURL("../graphs/all_ages_random_effects_caterpillar_by_age_fortis_gender.png")
+#browseURL("../graphs/all_ages_random_effects_caterpillar_by_age_aspirated_gender.png")
 
 

@@ -123,9 +123,8 @@ gender_comparison_pairs <- list(
 # 4. Helper to plot difference heatmaps
 ########################################
 plot_difference_heatmap <- function(data, title, fill_label, file_path, limit) {
-  # Calculate actual data range for better color scaling
-  max_abs_value <- max(abs(data$diff_value), na.rm = TRUE)
-  
+  limit <- 0.5
+
   heatmap_plot <- ggplot(data, aes(x = vot, y = f0)) +
     geom_tile(aes(fill = diff_value), color = "white") +
     geom_text(aes(label = sprintf("%.2f", diff_value)), size = 3) +
@@ -134,7 +133,10 @@ plot_difference_heatmap <- function(data, title, fill_label, file_path, limit) {
       mid = "white",
       high = "#B2182B",
       midpoint = 0,
-      name = fill_label
+      limits = c(-limit, limit),
+      breaks = seq(-limit, limit, by = 0.25),
+      name = fill_label,
+      oob = scales::squish
     ) +
     labs(
       x = "VOT",

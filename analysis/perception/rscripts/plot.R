@@ -76,17 +76,10 @@ f0_vot_rainbow_plot <- function(
   data, title, path
 ) {
   rainbow_plot <- ggplot(data, aes(vot, f0)) +
-    geom_tile(aes(fill = predominant_num)) +
+    geom_tile(aes(fill = I(rgb(1 - asp, 1 - lenis, 1 - tense))))+
     #               color = c("cyan", "yellow", "magenta"))) +
     # scale_color_manual(values = c("cyan", "yellow", "magenta")) +
     geom_text(aes(label =  paste(label, as.character(round(predominant_num * 100, 1))))) +
-    scale_fill_gradient(
-      low = "white",
-      high = brand_blue,
-      limits = c(0, 1),
-      name = "predominant %",
-      labels = scales::label_percent(accuracy = 1)
-    ) +
     labs(x = "VOT", y = "F0",
          title = title,
          caption = "A = aspirated, L = lenis, F = fortis") +
