@@ -26,6 +26,7 @@ processed_data <- basic_data_preprocessing(
   subject_information_csv_path = "../data/korean_stops_perception_3_poa_all_ages-subject_information.csv"
 )
 
+
 sprintf("The number of `asp` rows: %d", nrow(processed_data[processed_data$response == "asp", ]))
 sprintf("The number of `tense` rows: %d", nrow(processed_data[processed_data$response == "tense", ]))
 sprintf("The number of `lenis` rows: %d", nrow(processed_data[processed_data$response == "lenis", ]))
@@ -33,7 +34,7 @@ sprintf("The number of rows: %d", nrow(processed_data))
 
 fit_brms_model <- function(data) {
   brm(
-    formula = response ~ svot * sage + sf0 * sage + (1 + svot + sf0 | subject),
+    formula = response ~ svot + sf0 + svot:sage + sf0:sage + (1 + svot + sf0 | subject),
     data = data,
     family = categorical(link = "logit"),  # Multinomial logistic regression
     cores = 4,                             # Use multiple cores for faster computation
@@ -52,9 +53,10 @@ processed_data$response <- relevel(processed_data$response, ref = "lenis")
 
 # Path to save or load the model
 model <- save_or_load_model(
-  model_path = "../model/all_ages_multinomial_logistic_regression.rds",
+  model_path = "../model/all_ages_multinomial_logistic_regression_only_with_interaction.rds",
   data = processed_data,
-  model_function = fit_brms_model)
+  model_function = fit_brms_model,
+  force=TRUE)
 summary(model)
 # Extract model summaries into a tidy data frame
 tidy_model <- broom.mixed::tidy(model, effects = "fixed", conf.int = TRUE)
@@ -228,166 +230,12 @@ ggsave(
 # Rainbow Plot 
 ####################################
 data_for_rainbow_plot = plot_data_preprocessing(processed_data)
-view(data_for_rainbow_plot)
 rainbow_plot = f0_vot_rainbow_plot(
   data = data_for_rainbow_plot,
   title = "Mean responses across F0 and VOT continua",
   path = "../graphs/all_ages_three.png"
 )
 browseURL("../graphs/all_ages_three.png")
-
-
-library(bayesplot)
-
-# Caterpillar plot for all random effects
-# Get all parameter names that start with "r_subject"
-all_random_effects <- names(model$fit)[grepl("^r_subject__", names(model$fit))]
-
-# Separate by effect type and category
-intercept_pars <- all_random_effects[grepl("Intercept", all_random_effects)]
-vot_pars <- all_random_effects[grepl("svot", all_random_effects)]
-f0_pars <- all_random_effects[grepl("sf0", all_random_effects)]
-
-# Function to sort parameters by median (ascending order)
-sort_by_median <- function(pars) {
-  post <- as.matrix(model)
-  medians <- apply(post[, pars], 2, median)
-  pars[order(medians, decreasing = FALSE)]
-}
-
-# Function to sort parameters by age
-sort_by_age <- function(pars) {
-  # Extract subject IDs from parameter names
-  subject_ids <- as.numeric(gsub(".*\\[(\\d+),.*", "\\1", pars))
-  
-  # Get age information for each subject
-  age_data <- processed_data %>%
-    select(subject, age) %>%
-    distinct() %>%
-    mutate(subject = as.numeric(as.character(subject)))  # Convert factor to numeric
-  
-  # Create a data frame with parameter names and ages
-  par_age <- data.frame(
-    par = pars,
-    subject = subject_ids
-  ) %>%
-    left_join(age_data, by = "subject") %>%
-    arrange(age)
-  
-  return(par_age$par)
-}
-
-# Sort parameters by median
-intercept_pars_sorted <- sort_by_median(intercept_pars)
-vot_pars_sorted <- sort_by_median(vot_pars)
-f0_pars_sorted <- sort_by_median(f0_pars)
-
-# Sort parameters by age
-intercept_pars_age_sorted <- sort_by_age(intercept_pars)
-vot_pars_age_sorted <- sort_by_age(vot_pars)
-f0_pars_age_sorted <- sort_by_age(f0_pars)
-
-# Create caterpillar plots with sorted parameters
-p1 <- mcmc_intervals(model, pars = intercept_pars_sorted,
-                     prob = 0.5,
-                     prob_outer = 0.95,
-                     point_size = 0.3) +  # Very small points
-  coord_flip() +
-  labs(title = "Random Effects: Intercept",
-       x = "Parameter estimate",
-       y = "Participant") +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-
-p2 <- mcmc_intervals(model, pars = vot_pars_sorted,
-                     prob = 0.5,
-                     prob_outer = 0.95,
-                     point_size = 0.3) +  # Very small points
-  coord_flip() +
-  labs(title = "Random Effects: VOT",
-       x = "Parameter estimate",
-       y = "Participant") +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-
-p3 <- mcmc_intervals(model, pars = f0_pars_sorted,
-                     prob = 0.5,
-                     prob_outer = 0.95,
-                     point_size = 0.3) +  # Very small points
-  coord_flip() +
-  labs(title = "Random Effects: F0",
-       x = "Parameter estimate",
-       y = "Participant") +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-
-# Combine plots horizontally
-combined_random_effects <- p1 | p2 | p3
-
-# Print and save
-print(combined_random_effects)
-
-ggsave(
-  "../graphs/all_ages_random_effects_caterpillar.png",
-  plot = combined_random_effects,
-  scale = 1,
-  width = 15,
-  height = 6,
-  dpi = "retina"
-)
-
-browseURL("../graphs/all_ages_random_effects_caterpillar.png")
-
-# Create caterpillar plots sorted by age
-p1_age <- mcmc_intervals(model, pars = intercept_pars_age_sorted,
-                         prob = 0.5,
-                         prob_outer = 0.95,
-                         point_size = 0.3) +
-  coord_flip() +
-  labs(title = "Random Effects: Intercept (by Age)",
-       x = "Parameter estimate",
-       y = "Participant") +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-
-p2_age <- mcmc_intervals(model, pars = vot_pars_age_sorted,
-                         prob = 0.5,
-                         prob_outer = 0.95,
-                         point_size = 0.3) +
-  coord_flip() +
-  labs(title = "Random Effects: VOT (by Age)",
-       x = "Parameter estimate",
-       y = "Participant") +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-
-p3_age <- mcmc_intervals(model, pars = f0_pars_age_sorted,
-                         prob = 0.5,
-                         prob_outer = 0.95,
-                         point_size = 0.3) +
-  coord_flip() +
-  labs(title = "Random Effects: F0 (by Age)",
-       x = "Parameter estimate",
-       y = "Participant") +
-  theme(axis.text.x = element_blank(),
-        axis.ticks.x = element_blank())
-
-# Combine age-sorted plots
-combined_random_effects_age <- p1_age | p2_age | p3_age
-
-# Print and save
-print(combined_random_effects_age)
-
-ggsave(
-  "../graphs/all_ages_random_effects_caterpillar_by_age.png",
-  plot = combined_random_effects_age,
-  scale = 1,
-  width = 15,
-  height = 6,
-  dpi = "retina"
-)
-
-browseURL("../graphs/all_ages_random_effects_caterpillar_by_age.png")
 
 
 

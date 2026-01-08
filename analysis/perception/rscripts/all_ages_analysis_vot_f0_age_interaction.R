@@ -33,7 +33,7 @@ sprintf("The number of rows: %d", nrow(processed_data))
 
 fit_brms_model <- function(data) {
   brm(
-    formula = response ~ svot * sage + sf0 * sage + (1 + svot + sf0 | subject),
+    formula = response ~ svot * sf0 * sage + (1 + svot + sf0 | subject),
     data = data,
     family = categorical(link = "logit"),  # Multinomial logistic regression
     cores = 4,                             # Use multiple cores for faster computation
@@ -52,7 +52,7 @@ processed_data$response <- relevel(processed_data$response, ref = "lenis")
 
 # Path to save or load the model
 model <- save_or_load_model(
-  model_path = "../model/all_ages_multinomial_logistic_regression.rds",
+  model_path = "../model/all_ages_multinomial_logistic_regression_vot_f0_age_interaction.rds",
   data = processed_data,
   model_function = fit_brms_model)
 summary(model)

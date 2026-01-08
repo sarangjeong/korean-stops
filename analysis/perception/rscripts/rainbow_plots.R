@@ -59,12 +59,14 @@ for (poa_level in poa_levels) {
     filter(poa == poa_level)
   
   poa_plot_data <- plot_data_preprocessing(poa_data)
+  csv_path <- paste0("../graphs/rainbow_plots/summarized_data_poa_", poa_level, ".csv")
+  write_csv(poa_plot_data, file = csv_path)
   
-  rainbow_plot <- f0_vot_rainbow_plot(
-    data = poa_plot_data,
-    title = paste("Mean responses across F0 and VOT continua - POA:", poa_level),
-    path = paste0("../graphs/rainbow_plots/rainbow_plot_poa_", poa_level, ".png")
-  )
+ rainbow_plot <- f0_vot_rainbow_plot(
+   data = poa_plot_data,
+   title = paste("Mean responses across F0 and VOT continua - POA:", poa_level),
+   path = paste0("../graphs/rainbow_plots/rainbow_plot_poa_", poa_level, ".png")
+ )
   print(paste("Created plot for POA:", poa_level))
 }
 
@@ -89,20 +91,26 @@ age_group_levels <- c("young", "middle", "old")
 for (gen in gender_levels) {
   for (age_grp in age_group_levels) {
     gender_age_data <- processed_data %>%
+      select(where(~ !is.list(.x) & !is.matrix(.x))) %>%
       filter(gender == gen, age_group == age_grp)
+    gender_age_data_clean <- gender_age_data[, -c(31,32,33)]
+    csv_path <- paste0("../graphs/rainbow_plots/summarized_data_", gen, "_", age_grp, ".csv")
+    write_csv(gender_age_data_clean, file = csv_path)
     
-    if (nrow(gender_age_data) > 0) {
-      gender_age_plot_data <- plot_data_preprocessing(gender_age_data)
-      
-      rainbow_plot <- f0_vot_rainbow_plot(
-        data = gender_age_plot_data,
-        title = paste("Mean responses - Gender:", gen, "/ Age:", age_grp),
-        path = paste0("../graphs/rainbow_plots/rainbow_plot_gender_", gen, "_age_", age_grp, ".png")
-      )
-      print(paste("Created plot for Gender:", gen, "/ Age:", age_grp))
-    }
+    # if (nrow(gender_age_data) > 0) {
+    #   gender_age_plot_data <- plot_data_preprocessing(gender_age_data)
+    #   
+    #   rainbow_plot <- f0_vot_rainbow_plot(
+    #     data = gender_age_plot_data,
+    #     title = paste("Mean responses - Gender:", gen, "/ Age:", age_grp),
+    #     path = paste0("../graphs/rainbow_plots/rainbow_plot_gender_", gen, "_age_", age_grp, ".png")
+    #   )
+    #   print(paste("Created plot for Gender:", gen, "/ Age:", age_grp))
+    # }
   }
 }
+
+
 
 ####################################
 # 4. Rainbow plots by POA x gender x age

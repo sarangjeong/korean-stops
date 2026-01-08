@@ -1,6 +1,5 @@
-# Age-Constrained Clustering Analysis
+# Clustering Analysis
 # Created for clustering subjects based on F0 and VOT coefficients
-# with the constraint that age ranges of clusters should not overlap
 # created by Sarang Jeong on November 11, 2025
 
 ##########
@@ -26,226 +25,30 @@ clustering_data <- coefficients_data %>%
 cat("Number of subjects for clustering:", nrow(clustering_data), "\n")
 
 ##################################################
-# Age-Constrained Clustering Function
+# Perform K-means Clustering
 ##################################################
 
-age_constrained_clustering <- function(data, k_clusters, max_iterations = 1000, n_trials = 50) {
-  # data: dataframe with columns for clustering features and age
-  # k_clusters: number of clusters to create
-  # max_iterations: maximum iterations for optimization
-  # n_trials: number of random initializations to try
-  
-  cat("Starting age-constrained clustering with", k_clusters, "clusters\n")
-  
-  # Prepare features for clustering (F0 and VOT coefficients)
-  features <- data %>%
-    select(asp_f0, asp_vot, tense_f0, tense_vot) %>%
-    scale()  # Standardize features
-  
-  best_solution <- NULL
-  best_score <- -Inf
-  
-  for (trial in 1:n_trials) {
-    # Random initialization
-    initial_centers <- features[sample(nrow(features), k_clusters), ]
-    current_centers <- initial_centers
-    
-    converged <- FALSE
-    iteration <- 0
-    
-    while (!converged && iteration < max_iterations) {
-      iteration <- iteration + 1
-      
-      # Assign each point to nearest cluster
-      distances <- as.matrix(dist(rbind(current_centers, features)))
-      distances <- distances[(k_clusters + 1):nrow(distances), 1:k_clusters]
-      cluster_assignments <- apply(distances, 1, which.min)
-      
-      # Check age constraint
-      age_ranges <- data.frame(
-        cluster = cluster_assignments,
-        age = data$age
-      ) %>%
-        group_by(cluster) %>%
-        summarise(
-          min_age = min(age),
-          max_age = max(age),
-          .groups = 'drop'
-        ) %>%
-        arrange(min_age)
-      
-      # Check if age ranges overlap
-      age_valid <- TRUE
-      if (nrow(age_ranges) > 1) {
-        for (i in 1:(nrow(age_ranges) - 1)) {
-          if (age_ranges$max_age[i] >= age_ranges$min_age[i + 1]) {
-            age_valid <- FALSE
-            break
-          }
-        }
-      }
-      
-      if (!age_valid) {
-        # If age constraint violated, try to adjust assignments
-        # Sort subjects by age and assign to clusters in order
-        sorted_indices <- order(data$age)
-        cluster_size <- ceiling(nrow(data) / k_clusters)
-        
-        new_assignments <- rep(1:k_clusters, each = cluster_size, length.out = nrow(data))
-        cluster_assignments[sorted_indices] <- new_assignments
-      }
-      
-      # Update cluster centers
-      new_centers <- matrix(0, nrow = k_clusters, ncol = ncol(features))
-      for (k in 1:k_clusters) {
-        cluster_points <- features[cluster_assignments == k, , drop = FALSE]
-        if (nrow(cluster_points) > 0) {
-          new_centers[k, ] <- colMeans(cluster_points)
-        } else {
-          # If cluster is empty, reinitialize randomly
-          new_centers[k, ] <- features[sample(nrow(features), 1), ]
-        }
-      }
-      
-      # Check convergence
-      if (max(abs(new_centers - current_centers)) < 1e-6) {
-        converged <- TRUE
-      }
-      
-      current_centers <- new_centers
-    }
-    
-    # Calculate final age ranges
-    final_age_ranges <- data.frame(
-      cluster = cluster_assignments,
-      age = data$age
-    ) %>%
-      group_by(cluster) %>%
-      summarise(
-        min_age = min(age),
-        max_age = max(age),
-        .groups = 'drop'
-      ) %>%
-      arrange(min_age)
-    
-    # Check if solution is valid (no overlap)
-    is_valid <- TRUE
-    if (nrow(final_age_ranges) > 1) {
-      for (i in 1:(nrow(final_age_ranges) - 1)) {
-        if (final_age_ranges$max_age[i] >= final_age_ranges$min_age[i + 1]) {
-          is_valid <- FALSE
-          break
-        }
-      }
-    }
-    
-    if (is_valid) {
-      # Calculate within-cluster sum of squares as quality metric
-      wcss <- 0
-      for (k in 1:k_clusters) {
-        cluster_points <- features[cluster_assignments == k, , drop = FALSE]
-        if (nrow(cluster_points) > 0) {
-          center <- current_centers[k, ]
-          wcss <- wcss + sum(rowSums((cluster_points - matrix(center, nrow = nrow(cluster_points), ncol = ncol(features), byrow = TRUE))^2))
-        }
-      }
-      
-      score <- -wcss  # Negative because we want to minimize WCSS
-      
-      if (score > best_score) {
-        best_score <- score
-        best_solution <- list(
-          clusters = cluster_assignments,
-          centers = current_centers,
-          age_ranges = final_age_ranges,
-          wcss = wcss,
-          trial = trial,
-          iterations = iteration
-        )
-      }
-    }
-    
-    if (trial %% 10 == 0) {
-      cat("Completed", trial, "trials...\n")
-    }
-  }
-  
-  if (is.null(best_solution)) {
-    cat("Warning: Could not find a valid solution with non-overlapping age ranges\n")
-    cat("Falling back to age-sorted clustering\n")
-    
-    # Fallback: sort by age and divide into k groups
-    sorted_indices <- order(data$age)
-    cluster_size <- ceiling(nrow(data) / k_clusters)
-    cluster_assignments <- rep(1:k_clusters, each = cluster_size, length.out = nrow(data))
-    cluster_assignments <- cluster_assignments[order(sorted_indices)]
-    
-    # Calculate centers for fallback solution
-    new_centers <- matrix(0, nrow = k_clusters, ncol = ncol(features))
-    for (k in 1:k_clusters) {
-      cluster_points <- features[cluster_assignments == k, , drop = FALSE]
-      if (nrow(cluster_points) > 0) {
-        new_centers[k, ] <- colMeans(cluster_points)
-      }
-    }
-    
-    final_age_ranges <- data.frame(
-      cluster = cluster_assignments,
-      age = data$age
-    ) %>%
-      group_by(cluster) %>%
-      summarise(
-        min_age = min(age),
-        max_age = max(age),
-        .groups = 'drop'
-      ) %>%
-      arrange(min_age)
-    
-    wcss <- 0
-    for (k in 1:k_clusters) {
-      cluster_points <- features[cluster_assignments == k, , drop = FALSE]
-      if (nrow(cluster_points) > 0) {
-        center <- new_centers[k, ]
-        wcss <- wcss + sum(rowSums((cluster_points - matrix(center, nrow = nrow(cluster_points), ncol = ncol(features), byrow = TRUE))^2))
-      }
-    }
-    
-    best_solution <- list(
-      clusters = cluster_assignments,
-      centers = new_centers,
-      age_ranges = final_age_ranges,
-      wcss = wcss,
-      trial = NA,
-      iterations = NA
-    )
-  }
-  
-  return(best_solution)
-}
-
-##################################################
-# Perform Age-Constrained Clustering
-##################################################
+# Prepare features for clustering (F0 and VOT coefficients)
+features <- clustering_data %>%
+  select(asp_f0, asp_vot, tense_f0, tense_vot) %>%
+  scale()  # Standardize features
 
 # Try different numbers of clusters (2 to 5)
 set.seed(42)  # For reproducibility
 
 results_list <- list()
 
-for (k in 2:5) {
+for (k in 2:10) {
   cat("\n========================================\n")
   cat("Clustering with", k, "clusters\n")
   cat("========================================\n")
   
-  result <- age_constrained_clustering(clustering_data, k_clusters = k, n_trials = 100)
+  # Perform k-means clustering
+  kmeans_result <- kmeans(features, centers = k, nstart = 100, iter.max = 1000)
   
   # Add cluster assignments to data
   clustering_data_k <- clustering_data
-  clustering_data_k$cluster <- result$clusters
-  
-  # Print age ranges
-  cat("\nAge ranges for each cluster:\n")
-  print(result$age_ranges)
+  clustering_data_k$cluster <- kmeans_result$cluster
   
   # Print cluster statistics
   cluster_stats <- clustering_data_k %>%
@@ -254,46 +57,131 @@ for (k in 2:5) {
       n = n(),
       mean_age = mean(age),
       sd_age = sd(age),
+      min_age = min(age),
+      max_age = max(age),
       mean_asp_f0 = mean(asp_f0),
       mean_asp_vot = mean(asp_vot),
       mean_tense_f0 = mean(tense_f0),
       mean_tense_vot = mean(tense_vot),
       .groups = 'drop'
-    )
+    ) %>%
+    arrange(mean_age)
   
   cat("\nCluster statistics:\n")
   print(cluster_stats)
   
-  cat("\nWithin-cluster sum of squares:", result$wcss, "\n")
+  cat("\nWithin-cluster sum of squares:", kmeans_result$tot.withinss, "\n")
+  cat("Between-cluster sum of squares:", kmeans_result$betweenss, "\n")
+  cat("Total sum of squares:", kmeans_result$totss, "\n")
+  cat("Ratio (between/total):", kmeans_result$betweenss / kmeans_result$totss, "\n")
   
   # Save results
   results_list[[paste0("k", k)]] <- list(
-    result = result,
+    result = kmeans_result,
     data = clustering_data_k,
     stats = cluster_stats
   )
   
   # Save clustered data
-  output_path <- sprintf("../graphs/age_constrained_clusters_k%d.csv", k)
+  output_path <- sprintf("../graphs/clusters_k%d.csv", k)
   write.csv(clustering_data_k, output_path, row.names = FALSE)
   cat("Saved to:", output_path, "\n")
 }
 
 ##################################################
+# Determine Optimal Number of Clusters
+##################################################
+
+cat("\n========================================\n")
+cat("Determining optimal number of clusters\n")
+cat("========================================\n")
+
+# Elbow method
+wss <- sapply(2:10, function(k) {
+  kmeans(features, centers = k, nstart = 100)$tot.withinss
+})
+
+elbow_data <- data.frame(k = 2:10, wss = wss)
+
+elbow_plot <- ggplot(elbow_data, aes(x = k, y = wss)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  labs(
+    title = "Elbow Method for Optimal k",
+    x = "Number of Clusters (k)",
+    y = "Within-Cluster Sum of Squares"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(breaks = 2:10)
+
+print(elbow_plot)
+ggsave(
+  "../graphs/clustering_elbow_method.png",
+  plot = elbow_plot,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+# Silhouette method
+silhouette_scores <- sapply(2:10, function(k) {
+  km <- kmeans(features, centers = k, nstart = 100)
+  ss <- silhouette(km$cluster, dist(features))
+  mean(ss[, 3])
+})
+
+silhouette_data <- data.frame(k = 2:10, avg_silhouette = silhouette_scores)
+
+silhouette_plot <- ggplot(silhouette_data, aes(x = k, y = avg_silhouette)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 3) +
+  labs(
+    title = "Silhouette Method for Optimal k",
+    x = "Number of Clusters (k)",
+    y = "Average Silhouette Width"
+  ) +
+  theme_minimal() +
+  scale_x_continuous(breaks = 2:10)
+
+print(silhouette_plot)
+ggsave(
+  "../graphs/clustering_silhouette_method.png",
+  plot = silhouette_plot,
+  width = 8,
+  height = 6,
+  dpi = 300
+)
+
+cat("\nOptimal k by silhouette method:", which.max(silhouette_scores) + 1, "\n")
+
+##################################################
 # Visualization
 ##################################################
 
-# Visualize clustering results for k=3 (similar to young/middle/old)
-k <- 3
-clustering_result <- results_list[[paste0("k", k)]]
+# Visualize clustering results for k=10
+k <- 10
+
+# Get the data directly from the results list
+clustering_data_viz <- results_list[[paste0("k", k)]]$data
+
+# Reorder clusters by mean age for consistency
+cluster_age_order <- clustering_data_viz %>%
+  group_by(cluster) %>%
+  summarise(mean_age = mean(age), .groups = 'drop') %>%
+  arrange(mean_age) %>%
+  mutate(new_cluster = row_number())
+
+clustering_data_viz <- clustering_data_viz %>%
+  left_join(cluster_age_order %>% select(cluster, new_cluster), by = "cluster") %>%
+  mutate(cluster = new_cluster) %>%
+  select(-new_cluster)
 
 # Plot 1: Age distribution by cluster
-age_plot <- ggplot(clustering_result$data, aes(x = factor(cluster), y = age, fill = factor(cluster))) +
+age_plot <- ggplot(clustering_data_viz, aes(x = factor(cluster), y = age, fill = factor(cluster))) +
   geom_boxplot(alpha = 0.7) +
   geom_jitter(width = 0.2, alpha = 0.5) +
   labs(
     title = sprintf("Age Distribution Across %d Clusters", k),
-    subtitle = "Age ranges do not overlap between clusters",
     x = "Cluster",
     y = "Age"
   ) +
@@ -302,7 +190,7 @@ age_plot <- ggplot(clustering_result$data, aes(x = factor(cluster), y = age, fil
 
 print(age_plot)
 ggsave(
-  sprintf("../graphs/age_constrained_clustering_k%d_age_distribution.png", k),
+  sprintf("../graphs/clustering_k%d_age_distribution.png", k),
   plot = age_plot,
   width = 8,
   height = 6,
@@ -310,11 +198,10 @@ ggsave(
 )
 
 # Plot 2: Coefficient space (ASP)
-asp_coef_plot <- ggplot(clustering_result$data, aes(x = asp_vot, y = asp_f0, color = factor(cluster))) +
+asp_coef_plot <- ggplot(clustering_data_viz, aes(x = asp_vot, y = asp_f0, color = factor(cluster))) +
   geom_point(size = 3, alpha = 0.7) +
   labs(
     title = sprintf("Aspirated Contrast: F0 vs VOT Coefficients (%d Clusters)", k),
-    subtitle = "Clusters constrained by non-overlapping age ranges",
     x = "VOT Coefficient",
     y = "F0 Coefficient",
     color = "Cluster"
@@ -327,7 +214,7 @@ asp_coef_plot <- ggplot(clustering_result$data, aes(x = asp_vot, y = asp_f0, col
 
 print(asp_coef_plot)
 ggsave(
-  sprintf("../graphs/age_constrained_clustering_k%d_asp_coefficients.png", k),
+  sprintf("../graphs/clustering_k%d_asp_coefficients.png", k),
   plot = asp_coef_plot,
   width = 10,
   height = 6,
@@ -335,11 +222,10 @@ ggsave(
 )
 
 # Plot 3: Coefficient space (TENSE)
-tense_coef_plot <- ggplot(clustering_result$data, aes(x = tense_vot, y = tense_f0, color = factor(cluster))) +
+tense_coef_plot <- ggplot(clustering_data_viz, aes(x = tense_vot, y = tense_f0, color = factor(cluster))) +
   geom_point(size = 3, alpha = 0.7) +
   labs(
     title = sprintf("Tense Contrast: F0 vs VOT Coefficients (%d Clusters)", k),
-    subtitle = "Clusters constrained by non-overlapping age ranges",
     x = "VOT Coefficient",
     y = "F0 Coefficient",
     color = "Cluster"
@@ -352,7 +238,7 @@ tense_coef_plot <- ggplot(clustering_result$data, aes(x = tense_vot, y = tense_f
 
 print(tense_coef_plot)
 ggsave(
-  sprintf("../graphs/age_constrained_clustering_k%d_tense_coefficients.png", k),
+  sprintf("../graphs/clustering_k%d_tense_coefficients.png", k),
   plot = tense_coef_plot,
   width = 10,
   height = 6,
@@ -360,13 +246,13 @@ ggsave(
 )
 
 # Plot 4: Age vs F0 reliance by cluster
-clustering_result$data <- clustering_result$data %>%
+clustering_data_viz <- clustering_data_viz %>%
   mutate(
     asp_f0_reliance = abs(asp_f0) / (abs(asp_f0) + abs(asp_vot)),
     tense_f0_reliance = abs(tense_f0) / (abs(tense_f0) + abs(tense_vot))
   )
 
-f0_reliance_plot <- ggplot(clustering_result$data, aes(x = age, y = asp_f0_reliance, color = factor(cluster))) +
+f0_reliance_plot <- ggplot(clustering_data_viz, aes(x = age, y = asp_f0_reliance, color = factor(cluster))) +
   geom_point(size = 3, alpha = 0.7) +
   geom_smooth(method = "lm", se = TRUE, aes(fill = factor(cluster)), alpha = 0.2) +
   labs(
@@ -386,7 +272,7 @@ f0_reliance_plot <- ggplot(clustering_result$data, aes(x = age, y = asp_f0_relia
 
 print(f0_reliance_plot)
 ggsave(
-  sprintf("../graphs/age_constrained_clustering_k%d_f0_reliance.png", k),
+  sprintf("../graphs/clustering_k%d_f0_reliance.png", k),
   plot = f0_reliance_plot,
   width = 10,
   height = 6,
@@ -394,6 +280,6 @@ ggsave(
 )
 
 cat("\n========================================\n")
-cat("Age-constrained clustering complete!\n")
+cat("Clustering complete!\n")
 cat("Results saved to ../graphs/\n")
 cat("========================================\n")

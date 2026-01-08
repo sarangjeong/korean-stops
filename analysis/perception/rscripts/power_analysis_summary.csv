@@ -1,0 +1,5 @@
+parameter,Parameter,Effect Size,Required N,Power
+b_muasp_svot,asp_svot,2.841,15,0.907
+b_mutense_sf0,tense_sf0,2.107,15,0.911
+b_muasp_sf0,asp_sf0,3.025,10,0.967
+b_mutense_svot,tense_svot,-2.851,10,0.941
