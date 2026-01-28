@@ -62,6 +62,7 @@ workerid,proliferate.condition,age,comments,enjoyment,equipment_model,equipment_
 321,condition1,1,test,-1,,,-1,Male,0,,,,,,,1,1,1,
 475,condition1,57,반복적으로 듣다보니 소리가 헷갈렸습니다,-1,,earphone,-1,Female,0,5,0,36,0,59,0,서울말,없음,"어머니,아버지  전라북도",
 593,condition1,40,,-1,,earphone,-1,Female,0,50,0,0,50,0,0,서울말,영어 (고급),"어머니 서울말, 아버지 서울말",
+640,condition1,69,,-1,,laptop_speaker,-1,Female,0,0,0,20,0,20,60,서울말,"영어(초급), 일본어(초급)",부모님 황해도,
 460,condition1,24,,1,,speaker,1,Female,0,10,85,0,0,5,0,서울말,"영어(고급), 스페인어(중급)",모두 서울말,
 615,condition1,41,처음 테스트 이후부터 이어폰을 꼈는데요. 발음이 비슷하기 때문에 무조건 이어폰을 끼고 실험하는게 맞는 것 같습니다.,1,,laptop_speaker,0,Female,0,0,10,20,30,30,10,"서울말, 제주 사투리",영어(초중급),제주 사투리,
 599,condition1,44,한국인이 발음 한 것이 아니라 다양한 나라의 사람들이 발음하는 것 처럼 헷깔리는 발음들이 많았어요. 아무쪼록 도움이 되길 바랍니다. 감사합니다.,1,맥 북 프로,laptop_speaker,1,Female,0,90,0,0,0,10,0,서울말,영어(중급),"아버지 서울말, 어머니 서울말",
